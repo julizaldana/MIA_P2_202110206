@@ -3,4 +3,4 @@
 ## Manejo e Implementación de Archivos - Sección "B"
 
 Nombre: Julio Alejandro Zaldaña Ríos        
-Carnet: 202110206 
+Carnet: 202110206
