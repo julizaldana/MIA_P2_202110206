@@ -5,6 +5,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -34,6 +35,8 @@ func main() {
 
 	// Ruta para el endpoint "/analizador"
 	router.HandleFunc("/analizador", analizador).Methods("POST")
+	// Ruta para el endpoint "/obtenerdiscos" para obtener los datos de los discos
+	router.HandleFunc("/obtenerdiscos", obtenerNombresArchivos).Methods("GET")
 
 	// Manejador CORS
 	handler := cors.Default().Handler(router)
@@ -97,6 +100,23 @@ func guardarDatos(archivo string, datos DatosEntrada) error {
 	}
 
 	return nil
+}
+
+func obtenerNombresArchivos(w http.ResponseWriter, r *http.Request) {
+	archivos, err := ioutil.ReadDir("./MIA/Discos")
+	if err != nil {
+		// Manejar el error
+		http.Error(w, "Error al leer los archivos", http.StatusInternalServerError)
+		return
+	}
+
+	var nombres []string
+	for _, archivo := range archivos {
+		nombres = append(nombres, archivo.Name())
+	}
+
+	// Convertir la lista de nombres de los discos a JSON y enviarla como respuesta
+	json.NewEncoder(w).Encode(nombres)
 }
 
 func Comando(text string) string {

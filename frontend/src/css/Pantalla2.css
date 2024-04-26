@@ -1,0 +1,12 @@
+li {
+    position: relative;
+    padding-left: 20px; /* Espacio a la izquierda del nombre del disco */
+}
+
+.icono-disco {
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-size: 50px; /* Tamaño del icono */
+}
+

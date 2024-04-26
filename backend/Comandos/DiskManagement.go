@@ -102,7 +102,8 @@ func makeFile(s string, f string, u string) {
 	disco.Mbr_partition_3 = Structs.NewParticion()
 	disco.Mbr_partition_4 = Structs.NewParticion()
 
-	rutaBase := "/home/julio/Escritorio/MIA/P1/"
+	//se crean discos en carpeta /MIA/Discos
+	rutaBase := "./MIA/Discos/"
 
 	nombreDisco := string('A'+contadorDisco-1) + ".dsk"
 	contadorDisco++

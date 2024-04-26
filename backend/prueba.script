@@ -1,1 +1,1 @@
-Rmdisk -driveletter=A
+Mkdisk -size=10 -unit=k -fit=BF
