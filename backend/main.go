@@ -3,10 +3,14 @@ package main
 import (
 	"MIA_P2_202110206/Comandos"
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"strings"
+
+	"github.com/gorilla/mux"
 )
 
 //PROYECTO 2 - MANEJO E IMPLEMENTACIÓN DE ARCHIVOS
@@ -14,26 +18,74 @@ import (
 
 var logued = false //variable booleana para verificar si un usuario estará logueado en su sesión
 
-func main() {
-	for {
-		fmt.Println("*=*=*=*=*=*= INGRESE UN COMANDO =*=*=*=*=*=")
-		fmt.Println("*=*=*=*= Para terminar con la aplicación ingresar el comando exit")
-		fmt.Print("\t")
+//gorilla mux sirve para levantar un servidor con golang - go get -u github.com/gorilla/mux
 
-		reader := bufio.NewReader(os.Stdin)
-		entrada, _ := reader.ReadString('\n')
-		eleccion := strings.TrimRight(entrada, "\r\n")
-		if eleccion == "exit" {
-			break
-		}
-		comando := Comando(eleccion)
-		eleccion = strings.TrimSpace(eleccion)
-		eleccion = strings.TrimLeft(eleccion, comando)
-		tokens := SepararTokens(eleccion)
-		funciones(comando, tokens)
-		fmt.Println("\tPresione Enter para continuar...")
-		fmt.Scanln()
+//Estructura para recibir datos del front, para comandos.
+type DatosEntrada struct {
+	Comandos []string `json:"comandos"`
+}
+
+//COn el main se declara el servidor.
+
+func main() {
+	router := mux.NewRouter() //declarar router
+	router.HandleFunc("/", inicial).Methods("GET")
+	router.HandleFunc("/analizador", analizador).Methods("POST")
+
+	handler := allowCORS(router)
+	fmt.Println("Server on port :8080")
+	log.Fatal(http.ListenAndServe(":8080", handler))
+}
+
+func allowCORS(handler http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		handler.ServeHTTP(w, r)
+	})
+}
+
+func inicial(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "<h1>¡Hola Desde el servidor!</h1>")
+}
+
+func analizador(w http.ResponseWriter, r *http.Request) {
+	var datos DatosEntrada                        //se realiza una variable con estructura
+	err := json.NewDecoder(r.Body).Decode(&datos) //se mete el body del json a esa variable
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
+
+	err = guardarDatos("./prueba.script", datos)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Ejecutar el archivo de script con el comando Exec como lo hacia en el proyecto 1
+	Exec("./prueba.script")
+	fmt.Fprintf(w, "Script ejecutado exitosamente")
+}
+
+func guardarDatos(archivo string, datos DatosEntrada) error {
+	// Abrir o crear el archivo
+	file, err := os.Create(archivo)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	// Escribir los comandos en el archivo
+	for _, comando := range datos.Comandos {
+		_, err := file.WriteString(strings.TrimSpace(comando) + "\n")
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func Comando(text string) string {

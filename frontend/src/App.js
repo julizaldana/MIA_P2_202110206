@@ -4,6 +4,7 @@ import Navbar from "./components/Navbar";
 import Pantalla1 from "./pages/Pantalla1";
 import Pantalla2 from "./pages/Pantalla2";
 import Pantalla3 from "./pages/Pantalla3";
+import './css/App.css'; 
 
 
 function App() {

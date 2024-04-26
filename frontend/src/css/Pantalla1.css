@@ -1,0 +1,124 @@
+.input-container {
+    display: flex;
+    align-items: center;
+    background-color: #2b3a5f;
+    padding: 5px 10px; /* Reduzco el padding */
+    gap: 5px;
+    border-radius: 20px;
+    max-width: 950px; /* Limito el ancho máximo del contenedor */
+    margin: 0 auto; /* Centra el contenedor horizontalmente */
+  }
+  
+  .input-container .bash-text {
+    font-size: .8rem;
+    color: white;
+    font-family: Consolas, monospace; 
+  }
+  
+  .input-container .bash-text .user {
+    color: #E879F9;
+    font-family: Consolas, monospace; 
+  }
+  
+  .input-container .bash-text .vm {
+    color: #2DD4BF;
+    font-family: Consolas, monospace; 
+  }
+  
+  .input-container .bash-text .char {
+    color: #A78BFA;
+    font-family: Consolas, monospace; 
+  }
+  
+  .input-container textarea.input {
+    background-color: transparent;
+    border: none;
+    outline: none;
+    color: white;
+    resize: none; /* Evita que el usuario pueda redimensionar el textarea */
+    width: 100%; /* Ajusta el ancho al 100% del contenedor */
+    height: 100px; /* Ajusta la altura según sea necesario */
+    padding: 5px; /* Añade un poco de relleno para que el texto no esté pegado a los bordes */
+    font-family: Consolas, monospace; /* Utiliza la fuente Consolas */
+  }
+  
+  
+  
+  .input-container .bash-text span {
+    display: inline-block; /* Para que el span ocupe solo el ancho necesario */
+    white-space: nowrap; /* Evita que el texto se divida en varias líneas */
+  }
+  
+
+  .button2 {
+    display: inline-block;
+    transition: all 0.2s ease-in;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+    color: #090909;
+    padding: 0.7em 1.7em;
+    cursor: pointer;
+    font-size: 18px;
+    border-radius: 0.5em;
+    background: #e8e8e8;
+    border: 1px solid #e8e8e8;
+    box-shadow: 6px 6px 12px #c5c5c5, -6px -6px 12px #ffffff;
+    font-family: Consolas, monospace; 
+  }
+  
+  .button2:active {
+    color: #666;
+    box-shadow: inset 4px 4px 12px #c5c5c5, inset -4px -4px 12px #ffffff;
+  }
+  
+  .button2:before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%) scaleY(1) scaleX(1.25);
+    top: 100%;
+    width: 140%;
+    height: 180%;
+    background-color: rgba(0, 0, 0, 0.05);
+    border-radius: 50%;
+    display: block;
+    transition: all 0.5s 0.1s cubic-bezier(0.55, 0, 0.1, 1);
+    z-index: -1;
+  }
+  
+  .button2:after {
+    content: "";
+    position: absolute;
+    left: 55%;
+    transform: translateX(-50%) scaleY(1) scaleX(1.45);
+    top: 180%;
+    width: 160%;
+    height: 190%;
+    background-color: #3c9bb8;
+    border-radius: 50%;
+    display: block;
+    transition: all 0.5s 0.1s cubic-bezier(0.55, 0, 0.1, 1);
+    z-index: -1;
+  }
+  
+  .button2:hover {
+    color: #ffffff;
+    border: 1px solid #3c9bb8;
+  }
+  
+  .button2:hover:before {
+    top: -35%;
+    background-color: #3c9bb8;
+    transform: translateX(-50%) scaleY(1.3) scaleX(0.8);
+  }
+  
+  .button2:hover:after {
+    top: -45%;
+    background-color: #3c9bb8;
+    transform: translateX(-50%) scaleY(1.3) scaleX(0.8);
+  }
+  
+  
+
+  

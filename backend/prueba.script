@@ -1,0 +1,2 @@
+#CREACION DE DISCOS---------------------------------------------------
+Mkdisk -size=50 -unit=M -fit=FF
