@@ -21,6 +21,7 @@ Importar la librería en la raiz del proyecto.
 https://uiverse.io/
 https://semantic-ui.com/views/
 
+npm install semantic-ui-react 
 npm install axios para hacer peticiones al backend desde el frontend.
 npm install react-router-dom
 

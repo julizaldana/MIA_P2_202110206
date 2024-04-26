@@ -1,0 +1,22 @@
+.nav-item .nav-link {
+  position: relative; /* Asegura que la posición sea relativa para que la barra blanca esté posicionada correctamente */
+}
+
+.nav-item.active .nav-link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -2px; /* Ajusta según sea necesario */
+  width: 100%;
+  height: 2px;
+  background-color: white; /* Cambia por el color que desees */
+  transition: all 0.2s ease; /* Transición suave de 0.3 segundos */
+}
+
+.nav-item.active .nav-link:hover::after {
+  width: 0; /* Para evitar que la línea blanca aparezca cuando se pasa el mouse sobre la opción */
+}
+
+.nav-item.active .nav-link::after {
+  width: 100%; /* Para asegurar que la línea blanca esté completamente visible cuando la opción está activa */
+}
