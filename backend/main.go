@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 )
 
 //PROYECTO 2 - MANEJO E IMPLEMENTACIÓN DE ARCHIVOS
@@ -19,24 +20,29 @@ import (
 var logued = false //variable booleana para verificar si un usuario estará logueado en su sesión
 
 //gorilla mux sirve para levantar un servidor con golang - go get -u github.com/gorilla/mux
+//librería cors permite cualquier ingreso de peticiones desde cualquier puerto. go get github.com/rs/cors
 
 //Estructura para recibir datos del front, para comandos.
 type DatosEntrada struct {
 	Comandos []string `json:"comandos"`
 }
 
-//COn el main se declara el servidor.
+//Con el main se declara el servidor.
 
 func main() {
-	router := mux.NewRouter() //declarar router
-	router.HandleFunc("/", inicial).Methods("GET")
+	router := mux.NewRouter() // declarar router
+
+	// Ruta para el endpoint "/analizador"
 	router.HandleFunc("/analizador", analizador).Methods("POST")
 
-	handler := allowCORS(router)
-	fmt.Println("Server on port :8080")
+	// Manejador CORS
+	handler := cors.Default().Handler(router)
+
+	log.Println("Server on port :8080")
 	log.Fatal(http.ListenAndServe(":8080", handler))
 }
 
+/*
 func allowCORS(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -49,6 +55,7 @@ func allowCORS(handler http.Handler) http.Handler {
 func inicial(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "<h1>¡Hola Desde el servidor!</h1>")
 }
+*/
 
 func analizador(w http.ResponseWriter, r *http.Request) {
 	var datos DatosEntrada                        //se realiza una variable con estructura
@@ -67,6 +74,10 @@ func analizador(w http.ResponseWriter, r *http.Request) {
 	// Ejecutar el archivo de script con el comando Exec como lo hacia en el proyecto 1
 	Exec("./prueba.script")
 	fmt.Fprintf(w, "Script ejecutado exitosamente")
+
+	// Devuelve una respuesta exitosa
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(" - Datos recibidos correctamente en Backend"))
 }
 
 func guardarDatos(archivo string, datos DatosEntrada) error {
