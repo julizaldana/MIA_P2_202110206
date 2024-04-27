@@ -6,13 +6,14 @@ import (
 	"crypto/rand"
 	"encoding/binary"
 	"math/big"
+	"net/http"
 	"os"
 	"strconv"
 	"strings"
 	"time"
 )
 
-func ValidarDatosMKDISK(tokens []string) {
+func ValidarDatosMKDISK(tokens []string, w http.ResponseWriter) {
 	size := ""
 	fit := ""
 	unit := ""
@@ -66,13 +67,13 @@ func ValidarDatosMKDISK(tokens []string) {
 		Error("MKDISK", "valores en parametro unit no esperados")
 		return
 	} else {
-		makeFile(size, fit, unit)
+		makeFile(size, fit, unit, w)
 	}
 }
 
 var contadorDisco = 1
 
-func makeFile(s string, f string, u string) {
+func makeFile(s string, f string, u string, w http.ResponseWriter) {
 	var disco = Structs.NewMBR()
 	size, err := strconv.Atoi(s)
 	if err != nil {
@@ -157,6 +158,7 @@ func makeFile(s string, f string, u string) {
 	EscribirBytes(file, binario3.Bytes())
 	file.Close()
 	Mensaje("MKDISK", "¡Disco \""+nombreDisco+"\" creado correctamente!")
+	MandarMensaje("MKDISK", "¡Disco \""+nombreDisco+"\" creado correctamente!", w)
 }
 
 func RMDISK(tokens []string) {
@@ -190,7 +192,7 @@ func RMDISK(tokens []string) {
 		return
 	} else {
 		// Construir la ruta del archivo basado en la letra del driveLetter
-		rutaBase := "/home/julio/Escritorio/MIA/P1/"
+		rutaBase := "./MIA/Discos/"
 		nombreDisco := driveLetter + ".dsk"
 		path := rutaBase + nombreDisco
 

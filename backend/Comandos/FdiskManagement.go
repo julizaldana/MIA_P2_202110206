@@ -51,7 +51,7 @@ func ValidarDatosFDISK(tokens []string) {
 		return
 	} else {
 		// Construir la ruta del archivo basado en el driveLetter
-		rutaBase := "/home/julio/Escritorio/MIA/P1/"
+		rutaBase := "./MIA/Discos/"
 		nombreDisco := driveLetter + ".dsk"
 		path := rutaBase + nombreDisco
 

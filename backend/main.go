@@ -23,7 +23,7 @@ var logued = false //variable booleana para verificar si un usuario estará logu
 //gorilla mux sirve para levantar un servidor con golang - go get -u github.com/gorilla/mux
 //librería cors permite cualquier ingreso de peticiones desde cualquier puerto. go get github.com/rs/cors
 
-//Estructura para recibir datos del front, para comandos.
+// Estructura para recibir datos del front, para comandos.
 type DatosEntrada struct {
 	Comandos []string `json:"comandos"`
 }
@@ -37,6 +37,11 @@ func main() {
 	router.HandleFunc("/analizador", analizador).Methods("POST")
 	// Ruta para el endpoint "/obtenerdiscos" para obtener los datos de los discos
 	router.HandleFunc("/obtenerdiscos", obtenerNombresArchivos).Methods("GET")
+	//Ruta para notificaciones "/notificacion"
+	router.HandleFunc("/notificacion", Comandos.ObtenerMensajes).Methods("GET")
+	//Ruta para mandar los datos de las particiones
+	router.HandleFunc("/obtenerparticiones", Comandos.ObtenerParticiones).Methods("GET")
+
 
 	// Manejador CORS
 	handler := cors.Default().Handler(router)
@@ -75,12 +80,13 @@ func analizador(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Ejecutar el archivo de script con el comando Exec como lo hacia en el proyecto 1
-	Exec("./prueba.script")
-	fmt.Fprintf(w, "Script ejecutado exitosamente")
+	Exec("./prueba.script", w)
+	//fmt.Fprintf(w, "Script ejecutado exitosamente")
 
 	// Devuelve una respuesta exitosa
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(" - Datos recibidos correctamente en Backend"))
+	//w.Write([]byte(" - Datos recibidos correctamente en Backend"))
+	//Comandos.MandarMensaje("ANALIZADOR", "Comandos procesados correctamente", w)
 }
 
 func guardarDatos(archivo string, datos DatosEntrada) error {
@@ -117,6 +123,14 @@ func obtenerNombresArchivos(w http.ResponseWriter, r *http.Request) {
 
 	// Convertir la lista de nombres de los discos a JSON y enviarla como respuesta
 	json.NewEncoder(w).Encode(nombres)
+}
+
+func MandarError(op string, mensaje string, w http.ResponseWriter) {
+	// Construye el mensaje de error
+	mensajeError := ("\tERROR " + op + "\n\tTIPO: " + mensaje)
+
+	// Envía el mensaje de error al frontend
+	Comandos.MandarMensaje("ERROR", mensajeError, w)
 }
 
 func Comando(text string) string {
@@ -201,14 +215,14 @@ func SepararTokens(texto string) []string {
 	return tokens
 }
 
-func funciones(token string, tks []string) {
+func funciones(token string, tks []string, w http.ResponseWriter) {
 	if token != "" {
 		if Comandos.Comparar(token, "EXECUTE") {
 			fmt.Println("=*=*=*=*=*=*= FUNCION EXECUTE =*=*=*=*=*=*=")
-			FuncionExec(tks)
+			FuncionExec(tks, w)
 		} else if Comandos.Comparar(token, "MKDISK") {
 			fmt.Println("=*=*=*=*=*=*= FUNCION MKDISK =*=*=*=*=*=*=")
-			Comandos.ValidarDatosMKDISK(tks)
+			Comandos.ValidarDatosMKDISK(tks, w)
 		} else if Comandos.Comparar(token, "RMDISK") {
 			fmt.Println("=*=*=*=*=*=*= FUNCION RMDISK =*=*=*=*=*=*=*=")
 			Comandos.RMDISK(tks)
@@ -383,11 +397,12 @@ func funciones(token string, tks []string) {
 			}
 		} else {
 			Comandos.Error("ANALIZADOR", "No se reconoce el comando \""+token+"\"")
+			MandarError("ANALIZADOR", "No se reconoce el comando \""+token+"\"", w)
 		}
 	}
 }
 
-func FuncionExec(tokens []string) {
+func FuncionExec(tokens []string, w http.ResponseWriter) {
 	path := ""
 	for i := 0; i < len(tokens); i++ {
 		datos := strings.Split(tokens[i], "=")
@@ -399,10 +414,10 @@ func FuncionExec(tokens []string) {
 		Comandos.Error("EXECUTE", "Se requiere el parámetro \"path\" para este comando")
 		return
 	}
-	Exec(path)
+	Exec(path, w)
 }
 
-func Exec(path string) {
+func Exec(path string, w http.ResponseWriter) {
 	file, err := os.Open(path)
 	if err != nil {
 		log.Fatalf("Error al abrir el archivo: %s", err)
@@ -426,7 +441,7 @@ func Exec(path string) {
 			}
 			texto = strings.TrimLeft(texto, tk)
 			tokens := SepararTokens(texto)
-			funciones(tk, tokens)
+			funciones(tk, tokens, w)
 		}
 	}
 	if err := fileScanner.Err(); err != nil {

@@ -4,14 +4,41 @@ import (
 	"MIA_P2_202110206/Structs"
 	"bytes"
 	"encoding/binary"
+	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"strings"
 	"unsafe"
 )
 
 //FUNCIONAMIENTOS IMPORTANTES Y NECESARIOS PARA REALIZAR TODOS LOS PROCESOS
+
+type Mensajes struct {
+	Operacion string `json:"operacion"`
+	Mensaje   string `json:"mensaje"`
+}
+
+var mensajes []Mensajes
+
+// Función para enviar mensajes de éxito o error
+func MandarMensaje(op string, mensaje string, w http.ResponseWriter) {
+	respuesta := Mensajes{
+		Operacion: op,
+		Mensaje:   mensaje,
+	}
+
+	mensajes = append(mensajes, respuesta)
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(mensajes)
+}
+
+func ObtenerMensajes(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(mensajes)
+}
 
 func Comparar(a string, b string) bool {
 	if strings.ToUpper(a) == strings.ToUpper(b) {

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { Link } from 'react-router-dom'; 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCompactDisc } from '@fortawesome/free-solid-svg-icons';
 
@@ -38,7 +39,10 @@ const Pantalla2 = () => {
             <ul>
                 {nombresArchivos.map(nombre => (
                     <li key={nombre}>
-                        <FontAwesomeIcon icon={faCompactDisc} className="icono-disco" /> {nombre}
+                        {/* Utilizar Link para redirigir al usuario a una nueva pantalla */}
+                        <Link to={`/particiones/${nombre}`}>
+                            <FontAwesomeIcon icon={faCompactDisc} className="icono-disco" /> {nombre}
+                        </Link>
                     </li>
                 ))}
             </ul>
