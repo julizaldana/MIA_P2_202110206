@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
-import { Link, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 const Pantalla2Fs = () => {
     // Obtener el parámetro de la URL 
     const { user } = useParams();
+    const [logout, setLogout] = useState(false); // Estado para controlar el logout
 
     const handleSubmit = async () => {
         const comando = `logout`;
@@ -16,6 +18,7 @@ const Pantalla2Fs = () => {
             const response = await axios.post('http://localhost:8080/logout', data);
             console.log(response.data);
             console.log("Se mandó al backend el comando de logout");
+            setLogout(true); // Cambiar el estado a true al hacer logout
         } catch (error) {
             console.error('Error al enviar los datos:', error);
             // Manejo del error
@@ -26,14 +29,19 @@ const Pantalla2Fs = () => {
         <div>
             <h1> SISTEMA DE ARCHIVOS </h1>
             <h2>Usuario Logueado: {user}</h2>
-            <button
-                type="button"
-                className="btn btn-danger"
-                style={{ borderRadius: '20px' }}
-                onClick={handleSubmit}
-            >
-                <Link to="/pantalla2">LOGOUT</Link>
-            </button>
+            <ul>
+                <FontAwesomeIcon icon="fa-solid fa-folder" />
+                <FontAwesomeIcon icon="fa-regular fa-file" />
+            </ul>
+            {!logout && ( // Renderizar solo si no se ha hecho logout
+                <button
+                    type="button"
+                    className="btn btn-danger"
+                    onClick={handleSubmit}
+                >
+                    LOGOUT
+                </button>
+            )}
         </div>
     );
 }

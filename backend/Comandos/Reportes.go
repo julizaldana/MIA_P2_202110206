@@ -410,19 +410,31 @@ func mbr(p string, id string) {
 
 	//fmt.Println(content)
 
-	//CREAR IMAGEN
+	// Definir la ruta de la imagen
+	rutaBase := "./MIA/Reportes/" // Ruta base donde se guardarán los reportes
+	rutaImagen := filepath.Join(rutaBase, p)
+	nombreDot := p + ".dot"
+
+	// Escribir el contenido en un archivo .dot
+	pd = filepath.Join(rutaBase, nombreDot)
 	b := []byte(content)
 	err_ = ioutil.WriteFile(pd, b, 0644)
 	if err_ != nil {
 		log.Fatal(err_)
 	}
 
+	// Generar la imagen con Graphviz
 	terminacion := strings.Split(p, ".")
-
 	path, _ := exec.LookPath("dot")
 	cmd, _ := exec.Command(path, "-T"+terminacion[1], pd).Output()
-	node := int(0777)
-	ioutil.WriteFile(p, cmd, os.FileMode(node))
+
+	// Guardar la imagen en la ruta especificada
+	err = ioutil.WriteFile(rutaImagen, cmd, os.FileMode(0777))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Mostrar un mensaje de confirmación
 	disco := strings.Split(pth, "/")
 	Mensaje("REP", "Reporte tipo MBR del disco "+disco[len(disco)-1]+",creado correctamente")
 
@@ -711,18 +723,30 @@ func tree(p string, id string) {
 
 	//fmt.Println(content)
 
+	// Definir la ruta de la imagen
+	rutaBase := "./MIA/Reportes/" // Ruta base donde se guardarán los reportes
+	rutaImagen := filepath.Join(rutaBase, p)
+	nombreDot := p + ".dot"
+
+	// Escribir el contenido en un archivo .dot
+	pd = filepath.Join(rutaBase, nombreDot)
 	b := []byte(content)
 	err_ = ioutil.WriteFile(pd, b, 0644)
 	if err_ != nil {
 		log.Fatal(err_)
 	}
 
+	// Generar la imagen con Graphviz
 	terminacion := strings.Split(p, ".")
-
 	path, _ := exec.LookPath("dot")
 	cmd, _ := exec.Command(path, "-T"+terminacion[1], pd).Output()
-	node := int(0777)
-	ioutil.WriteFile(p, cmd, os.FileMode(node))
+
+	// Guardar la imagen en la ruta especificada
+	err = ioutil.WriteFile(rutaImagen, cmd, os.FileMode(0777))
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	Mensaje("REP", "Reporte tipo TREE para el filesystem de la particion "+id+",creado correctamente")
 
 }
@@ -812,18 +836,31 @@ func journalr(p string, id string) {
 	//fmt.Println(content)
 
 	//CREAR IMAGEN
+	// Definir la ruta de la imagen
+	rutaBase := "./MIA/Reportes/" // Ruta base donde se guardarán los reportes
+	rutaImagen := filepath.Join(rutaBase, p)
+	nombreDot := p + ".dot"
+
+	// Escribir el contenido en un archivo .dot
+	pd = filepath.Join(rutaBase, nombreDot)
 	b := []byte(content)
 	err_ = ioutil.WriteFile(pd, b, 0644)
 	if err_ != nil {
 		log.Fatal(err_)
 	}
 
+	// Generar la imagen con Graphviz
 	terminacion := strings.Split(p, ".")
-
 	path, _ := exec.LookPath("dot")
 	cmd, _ := exec.Command(path, "-T"+terminacion[1], pd).Output()
-	node := int(0777)
-	ioutil.WriteFile(p, cmd, os.FileMode(node))
+
+	// Guardar la imagen en la ruta especificada
+	err = ioutil.WriteFile(rutaImagen, cmd, os.FileMode(0777))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Mostrar un mensaje de confirmación
 	Mensaje("REP", "Reporte tipo JOURNALING para la particion "+id+", creado correctamente")
 
 }
@@ -899,18 +936,30 @@ func superblockr(p string, id string) {
 	//fmt.Println(content)
 
 	//CREAR IMAGEN
+	// Definir la ruta de la imagen
+	rutaBase := "./MIA/Reportes/" // Ruta base donde se guardarán los reportes
+	rutaImagen := filepath.Join(rutaBase, p)
+	nombreDot := p + ".dot"
+
+	// Escribir el contenido en un archivo .dot
+	pd = filepath.Join(rutaBase, nombreDot)
 	b := []byte(content)
 	err_ = ioutil.WriteFile(pd, b, 0644)
 	if err_ != nil {
 		log.Fatal(err_)
 	}
 
+	// Generar la imagen con Graphviz
 	terminacion := strings.Split(p, ".")
-
 	path, _ := exec.LookPath("dot")
 	cmd, _ := exec.Command(path, "-T"+terminacion[1], pd).Output()
-	node := int(0777)
-	ioutil.WriteFile(p, cmd, os.FileMode(node))
+
+	// Guardar la imagen en la ruta especificada
+	err = ioutil.WriteFile(rutaImagen, cmd, os.FileMode(0777))
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	Mensaje("REP", "Reporte tipo SUPERBLOQUE para la particion "+id+", creado correctamente")
 
 }
