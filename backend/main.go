@@ -3,12 +3,14 @@ package main
 import (
 	"MIA_P2_202110206/Comandos"
 	"bufio"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/gorilla/mux"
@@ -28,6 +30,11 @@ type DatosEntrada struct {
 	Comandos []string `json:"comandos"`
 }
 
+// Estructura para recibir datos del front, para comandos.
+type NombreDisco struct {
+	NombreDsk []string `json:"nombredsk"`
+}
+
 //Con el main se declara el servidor.
 
 func main() {
@@ -40,8 +47,11 @@ func main() {
 	//Ruta para notificaciones "/notificacion"
 	router.HandleFunc("/notificacion", Comandos.ObtenerMensajes).Methods("GET")
 	//Ruta para mandar los datos de las particiones
-	router.HandleFunc("/obtenerparticiones", Comandos.ObtenerParticiones).Methods("GET")
-
+	//router.HandleFunc("/obtenerparticiones", enviarListaParticiones).Methods("GET")
+	//router.HandleFunc("/verparticiones", verParticiones).Methods("POST")
+	// Ruta para obtener la lista de particiones montadas
+	//router.HandleFunc("/obtenerparticionesmontadas", Comandos.ObtenerParticionesMontadas).Methods("GET")
+	router.HandleFunc("/obtenerreportes", obtenerReportes).Methods("GET")
 
 	// Manejador CORS
 	handler := cors.Default().Handler(router)
@@ -89,6 +99,60 @@ func analizador(w http.ResponseWriter, r *http.Request) {
 	//Comandos.MandarMensaje("ANALIZADOR", "Comandos procesados correctamente", w)
 }
 
+/*
+func verParticiones(w http.ResponseWriter, r *http.Request) {
+	var disco NombreDisco
+	err :=
+	err := json.NewDecoder(r.Body).Decode(&disco) //se mete el body del json a esa variable
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	Comandos.MandarParticiones(disco, w)
+
+	w.WriteHeader(http.StatusOK)
+
+}
+*/
+
+//FUNCION PARA OBTENER REPORTES DE BACKEND
+func obtenerReportes(w http.ResponseWriter, r *http.Request) {
+	// Obtener la lista de archivos en la carpeta
+	archivos, err := ioutil.ReadDir("./MIA/Reportes")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Crear una estructura para almacenar los datos de los reportes
+	type Reporte struct {
+		Nombre    string `json:"nombre"`
+		Contenido string `json:"contenido"`
+	}
+	var reportes []Reporte
+
+	// Iterar sobre cada archivo y obtener su contenido codificado en base64
+	for _, archivo := range archivos {
+		if !archivo.IsDir() && (strings.HasSuffix(archivo.Name(), ".jpg") || strings.HasSuffix(archivo.Name(), ".png")) {
+			contenido, err := ioutil.ReadFile(filepath.Join("./MIA/Reportes", archivo.Name()))
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			reporte := Reporte{
+				Nombre:    archivo.Name(),
+				Contenido: base64.StdEncoding.EncodeToString(contenido),
+			}
+			reportes = append(reportes, reporte)
+		}
+	}
+
+	// Convertir la lista de reportes a JSON y enviarla como respuesta
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(reportes)
+}
+
 func guardarDatos(archivo string, datos DatosEntrada) error {
 	// Abrir o crear el archivo
 	file, err := os.Create(archivo)
@@ -132,6 +196,28 @@ func MandarError(op string, mensaje string, w http.ResponseWriter) {
 	// Envía el mensaje de error al frontend
 	Comandos.MandarMensaje("ERROR", mensajeError, w)
 }
+
+/*
+func enviarListaParticiones(w http.ResponseWriter, r *http.Request) {
+	// Convertir la lista de nombres de particiones a formato JSON
+	jsonNombres, err := json.Marshal(nombresParticiones)
+	if err != nil {
+		Error("REP", "Error al convertir a JSON")
+		return
+	}
+
+	var nombreDisco NombreDisco
+
+	disco :=
+
+		Comandos.MandarMensaje()
+
+	// Escribir la respuesta como JSON
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(jsonNombres)
+}
+*/
 
 func Comando(text string) string {
 	var tkn string

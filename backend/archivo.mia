@@ -1,0 +1,2 @@
+mount -driveletter=A -name=Part30
+rep -id=A300 -path=reporte8.jpg -name=disk

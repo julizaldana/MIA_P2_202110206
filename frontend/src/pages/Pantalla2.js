@@ -8,6 +8,7 @@ import { faCompactDisc } from '@fortawesome/free-solid-svg-icons';
 const Pantalla2 = () => {
     const [nombresArchivos, setNombresArchivos] = useState([]);
     const [cargando, setCargando] = useState(true);
+    const [particionesMontadas, setParticionesMontadas] = useState([]);
 
     useEffect(() => {
         // Hacer la solicitud al backend para obtener los nombres de los archivos (discos)
@@ -21,6 +22,17 @@ const Pantalla2 = () => {
                 setCargando(false);
             });
     }, []);
+
+    // Función para manejar el clic del botón para mostrar particiones montadas
+    const mostrarParticionesMontadas = () => {
+        axios.get('http://localhost:8080/obtenerparticionesmontadas')
+            .then(response => {
+                setParticionesMontadas(response.data);
+            })
+            .catch(error => {
+                console.error('Error al obtener las particiones montadas:', error);
+            });
+    };
 
     // Mostrar un mensaje de carga mientras se obtienen los datos
     if (cargando) {
@@ -46,6 +58,27 @@ const Pantalla2 = () => {
                     </li>
                 ))}
             </ul>
+            <br></br>
+            <button
+                type="button"
+                className="button"
+                style={{ borderRadius: '20px' }}
+                onClick={mostrarParticionesMontadas}
+            >
+                Mostrar Particiones Montadas
+            </button>  
+
+            {/* Mostrar la lista de particiones montadas */}
+            <div>
+                <h2>Particiones Montadas:</h2>
+                <ul>
+                    {particionesMontadas.map((particion, index) => (
+                        <li key={index}>
+                            <span>id: {particion.Id} || nombre: {particion.Nombre}</span>
+                        </li>
+                    ))}
+                </ul>
+            </div>         
         </div>
     );
 }

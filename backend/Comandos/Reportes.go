@@ -10,6 +10,7 @@ import (
 	"math"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"unsafe"
@@ -33,7 +34,7 @@ func ValidarDatosREP(context []string) {
 		token := context[i]
 		tk := strings.Split(token, "=")
 		if Comparar(tk[0], "path") {
-			path = strings.ReplaceAll(tk[1], "\"", "")
+			path = tk[1]
 		} else if Comparar(tk[0], "name") {
 			name = tk[1]
 		} else if Comparar(tk[0], "id") {
@@ -243,22 +244,35 @@ func dks(p string, id string) {
 	content += "</table>>];\n}\n"
 
 	//fmt.Println(content)
+	//log.Println("https://quickchart.io/graphviz?graph=" + content)
+	//se crean reportes en /MIA/Reportes/
+	// Definir la ruta de la imagen
+	rutaBase := "./MIA/Reportes/" // Ruta base donde se guardarán los reportes
+	rutaImagen := filepath.Join(rutaBase, p)
+	nombreDot := p + ".dot"
 
-	//CREAR IMAGEN
+	// Escribir el contenido en un archivo .dot
+	pd = filepath.Join(rutaBase, nombreDot)
 	b := []byte(content)
 	err_ = ioutil.WriteFile(pd, b, 0644)
 	if err_ != nil {
 		log.Fatal(err_)
 	}
 
+	// Generar la imagen con Graphviz
 	terminacion := strings.Split(p, ".")
-
 	path, _ := exec.LookPath("dot")
 	cmd, _ := exec.Command(path, "-T"+terminacion[1], pd).Output()
-	node := int(0777)
-	ioutil.WriteFile(p, cmd, os.FileMode(node))
+
+	// Guardar la imagen en la ruta especificada
+	err = ioutil.WriteFile(rutaImagen, cmd, os.FileMode(0777))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Mostrar un mensaje de confirmación
 	disco := strings.Split(pth, "/")
-	Mensaje("REP", "Reporte tipo DISK del disco "+disco[len(disco)-1]+",creado correctamente")
+	Mensaje("REP", "Reporte tipo DISK del disco "+disco[len(disco)-1]+", creado correctamente")
 
 }
 
