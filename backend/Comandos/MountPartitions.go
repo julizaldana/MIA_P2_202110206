@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
+	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -242,6 +243,44 @@ func listaMount() {
 			}
 		}
 	}
+}
+
+//Estructura necesaria para poder enviar en formato json el id y el nombre de una particion montada.
+
+type PartMontada struct {
+	ID     string `json:"id"`
+	Nombre string `json:"nombre"`
+}
+
+//Retornar las particiones que están montadas
+
+func ListaPartMount() []PartMontada {
+	var particionesMontadas []PartMontada
+	for i := 0; i < 99; i++ {
+		for j := 0; j < 26; j++ {
+			if DiscMont[i].Particiones[j].Estado == 1 {
+				nombre := ""
+				id := ""
+				for k := 0; k < len(DiscMont[i].Particiones[j].Nombre); k++ {
+					if DiscMont[i].Particiones[j].Nombre[k] != 0 {
+						nombre += string(DiscMont[i].Particiones[j].Nombre[k])
+					}
+				}
+				for k := 0; k < len(DiscMont[i].Particiones[j].Id); k++ {
+					if DiscMont[i].Particiones[j].Id[k] != 0 {
+						id += string(DiscMont[i].Particiones[j].Id[k])
+					}
+				}
+				particion := PartMontada{
+					ID:     id,
+					Nombre: nombre,
+				}
+				particionesMontadas = append(particionesMontadas, particion)
+			}
+		}
+	}
+	log.Println(particionesMontadas)
+	return particionesMontadas
 }
 
 func ValidarDatosUNMOUNT(context []string) {

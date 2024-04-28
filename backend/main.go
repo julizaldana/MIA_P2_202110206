@@ -52,6 +52,29 @@ func main() {
 	// Ruta para obtener la lista de particiones montadas
 	//router.HandleFunc("/obtenerparticionesmontadas", Comandos.ObtenerParticionesMontadas).Methods("GET")
 	router.HandleFunc("/obtenerreportes", obtenerReportes).Methods("GET")
+	router.HandleFunc("/iniciarsesion", analizador).Methods("POST")
+	router.HandleFunc("/logout", analizador).Methods("POST")
+	router.HandleFunc("/obtenerparticionesmontadas", func(w http.ResponseWriter, r *http.Request) {
+		// Obtener la lista de particiones montadas
+		particionesMontadas := Comandos.ListaPartMount()
+
+		// Imprimir en la consola la lista de particiones montadas en formato JSON
+		particionesMontadasJSON, err := json.Marshal(particionesMontadas)
+		if err != nil {
+			log.Println("Error al convertir la lista de particiones montadas a JSON:", err)
+		} else {
+			log.Println(string(particionesMontadasJSON))
+		}
+
+		// Configurar el encabezado de respuesta como JSON
+		w.Header().Set("Content-Type", "application/json")
+
+		// Enviar la lista de particiones montadas como JSON en la respuesta
+		if err := json.NewEncoder(w).Encode(particionesMontadas); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	}).Methods("GET")
 
 	// Manejador CORS
 	handler := cors.Default().Handler(router)

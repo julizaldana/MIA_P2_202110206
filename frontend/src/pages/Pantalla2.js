@@ -31,6 +31,8 @@ const Pantalla2 = () => {
             })
             .catch(error => {
                 console.error('Error al obtener las particiones montadas:', error);
+                // Limpiar la lista de particiones montadas en caso de error
+                setParticionesMontadas([]);
             });
     };
 
@@ -71,13 +73,19 @@ const Pantalla2 = () => {
             {/* Mostrar la lista de particiones montadas */}
             <div>
                 <h2>Particiones Montadas:</h2>
-                <ul>
-                    {particionesMontadas.map((particion, index) => (
-                        <li key={index}>
-                            <span>id: {particion.Id} || nombre: {particion.Nombre}</span>
-                        </li>
-                    ))}
-                </ul>
+                {particionesMontadas.length > 0 ? (
+                    <ul>
+                        {particionesMontadas.map((particion, index) => (
+                            <li key={index}>
+                                <Link to={`/login/${particion.id}`}>{/* Agregar enlace */}
+                                <span>id: {particion.id} || nombre: {particion.nombre}</span>
+                                </Link>
+                            </li>
+                        ))}
+                    </ul>
+                ) : (
+                    <p>No hay particiones montadas</p>
+                )}
             </div>         
         </div>
     );
