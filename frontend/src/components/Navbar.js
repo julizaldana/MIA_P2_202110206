@@ -7,9 +7,9 @@ const Navbar = () => {
   const location = useLocation();
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav className="navbar navbar-expand-lg navbar-dark bg-dark" style={{ fontSize: '1.5em' }}>
       <Link to=''>
-        <img src='./mialogo.png' width='70' alt='logo'/>
+        <img src='./mialogo.png' width='90' alt='logo'/>
       </Link>
       <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span className="navbar-toggler-icon"></span>

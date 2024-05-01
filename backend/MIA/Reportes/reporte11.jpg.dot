@@ -1,0 +1,29 @@
+digraph G{
+ rankdir=TB;
+ forcelabels= true;
+ graph [ dpi = "600"] ; 
+ node [shape = plaintext];
+ nodo1 [label = <<table>
+ <tr>
+ <td ROWSPAN='2'> "MBR" </td><td COLSPAN='11'> Extendida 
+25.00% del disco </td>
+<td ROWSPAN='2'> Primaria 
+25.00% del disco </td>
+<td ROWSPAN='2'> Libre 
+50.00% del disco </td></tr>
+
+<tr>
+<td>"EBR"</td><td>"Logica
+ 5.00% de la particion extendida"</td>
+<td>"EBR"</td><td>"Logica
+ 5.00% de la particion extendida"</td>
+<td>"EBR"</td><td>"Logica
+ 5.00% de la particion extendida"</td>
+<td>"EBR"</td><td>"Logica
+ 5.00% de la particion extendida"</td>
+<td>"Libre 
+5.00% de la partición extendida. "</td>
+</tr>
+
+</table>>];
+}

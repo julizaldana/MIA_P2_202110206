@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"math"
+	"net/http"
 	"os"
 	"strings"
 	"time"
@@ -13,7 +14,7 @@ import (
 
 //SE DEBE DE CREAR UN SISTEMA DE ARCHIVOS EXT2/EXT3 EN LA RAIZ, SE TENDRÁ UN ARCHIVO TXT, CON LOS USUARIOS, GRUPOS, INFORMACION DE LOS MISMOS.
 
-func ValidarDatosMKFS(context []string) {
+func ValidarDatosMKFS(context []string, w http.ResponseWriter) {
 	tipo := "full"
 	id := ""
 	fs := "" // Variable para almacenar el tipo de sistema de archivos
@@ -47,9 +48,9 @@ func ValidarDatosMKFS(context []string) {
 
 	// Determinar el tipo de sistema de archivos
 	if fs == "" || fs == "2fs" {
-		crearFileSystem2(id, tipo)
+		crearFileSystem2(id, tipo, w)
 	} else if fs == "3fs" {
-		crearFileSystem3(id, tipo)
+		crearFileSystem3(id, tipo, w)
 	} else {
 		Error("MKFS", "Tipo de sistema de archivos no es válido, se admite 2fs/3fs para EXT2/EXT3")
 		return
@@ -57,7 +58,7 @@ func ValidarDatosMKFS(context []string) {
 }
 
 // CREAR UN SISTEMA DE ARCHIVOS EXT2 POR DEFECTO
-func crearFileSystem(id string, t string) {
+func crearFileSystem(id string, t string, w http.ResponseWriter) {
 	p := ""
 	particion := GetMount("MKFS", id, &p)                                                                                                                                          //Obtener una particion con el GetMount(), que se obtiene ingresando el id de particion.                                                                                                                                        //SE LLAMA AL COMANDO PARA OBTENER LA PARTCION
 	n := math.Floor(float64(particion.Part_s-int64(unsafe.Sizeof(Structs.SuperBloque{})))) / float64(4+unsafe.Sizeof(Structs.Inodos{})+3*unsafe.Sizeof(Structs.BloquesArchivos{})) //obtener n del calculo para obtener el tamaño
@@ -75,12 +76,12 @@ func crearFileSystem(id string, t string) {
 	copy(spr.S_mtime[:], fecha)
 	spr.S_mnt_count = spr.S_mnt_count + 1
 	spr.S_filesystem_type = 2
-	ext2(spr, particion, int64(n), p)
+	ext2(spr, particion, int64(n), p, w)
 }
 
 //CREAR UN SISTEMA DE ARCHIVOS EXT2 con fs=2fs
 
-func crearFileSystem2(id string, fs string) {
+func crearFileSystem2(id string, fs string, w http.ResponseWriter) {
 	p := ""
 	particion := GetMount("MKFS", id, &p)
 	n := math.Floor(float64(particion.Part_s-int64(unsafe.Sizeof(Structs.SuperBloque{})))) / float64(4+unsafe.Sizeof(Structs.Inodos{})+3*unsafe.Sizeof(Structs.BloquesArchivos{})) //obtener n del calculo para obtener el tamaño
@@ -98,13 +99,13 @@ func crearFileSystem2(id string, fs string) {
 	copy(spr.S_mtime[:], fecha)
 	spr.S_mnt_count = spr.S_mnt_count + 1
 	spr.S_filesystem_type = 2
-	ext2(spr, particion, int64(n), p)
+	ext2(spr, particion, int64(n), p, w)
 
 }
 
 //CREAR UN SISTEMA DE ARCHIVOS EXT3 con fs=3fs
 
-func crearFileSystem3(id string, fs string) {
+func crearFileSystem3(id string, fs string, w http.ResponseWriter) {
 	p := ""
 	particion := GetMount("MKFS", id, &p)
 	n := math.Floor(float64(particion.Part_s-int64(unsafe.Sizeof(Structs.SuperBloque{})))) / float64(4+unsafe.Sizeof(Structs.Journaling{})+unsafe.Sizeof(Structs.Inodos{})+3*unsafe.Sizeof(Structs.BloquesArchivos{})) //obtener n del calculo para obtener el tamaño
@@ -130,11 +131,11 @@ func crearFileSystem3(id string, fs string) {
 	copy(journal.J_content[:], "-")
 	copy(journal.J_fecha[:], fecha)
 
-	ext3(spr, journal, particion, int64(n), p)
+	ext3(spr, journal, particion, int64(n), p, w)
 
 }
 
-func ext2(spr Structs.SuperBloque, p Structs.Particion, n int64, path string) {
+func ext2(spr Structs.SuperBloque, p Structs.Particion, n int64, path string, w http.ResponseWriter) {
 	spr.S_bm_inode_start = p.Part_s + int64(unsafe.Sizeof(Structs.SuperBloque{}))
 	spr.S_bm_block_start = spr.S_bm_inode_start + n
 	spr.S_inode_start = spr.S_bm_block_start + (3 * n)
@@ -314,9 +315,10 @@ func ext2(spr Structs.SuperBloque, p Structs.Particion, n int64, path string) {
 		}
 	}
 	Mensaje("MKFS", "Se ha formateado un sistema EXT2 en la partición "+nombreParticion+" de manera correcta.")
+	MandarMensaje("MKFS", "Se ha formateado un sistema EXT2 en la partición "+nombreParticion+" de manera correcta.", w)
 }
 
-func ext3(spr Structs.SuperBloque, journal Structs.Journaling, p Structs.Particion, n int64, path string) {
+func ext3(spr Structs.SuperBloque, journal Structs.Journaling, p Structs.Particion, n int64, path string, w http.ResponseWriter) {
 	spr.S_bm_inode_start = p.Part_s + int64(unsafe.Sizeof(Structs.SuperBloque{})) + int64(unsafe.Sizeof(Structs.Journaling{}))
 	spr.S_bm_block_start = spr.S_bm_inode_start + n
 	spr.S_inode_start = spr.S_bm_block_start + (3 * n)
@@ -326,6 +328,7 @@ func ext3(spr Structs.SuperBloque, journal Structs.Journaling, p Structs.Partici
 	//file, err := os.Open(strings.ReplaceAll(path, "\"", ""))
 	if err != nil {
 		Error("MKFS", "No se ha encontrado el disco.")
+		MandarError("MKFS", "No se ha encontrado el disco.", w)
 		return
 	}
 
@@ -398,6 +401,7 @@ func ext3(spr Structs.SuperBloque, journal Structs.Journaling, p Structs.Partici
 	file, err = os.Open(strings.ReplaceAll(path, "\"", ""))
 	if err != nil {
 		Error("MKFS", "No se ha encontrado el disco.")
+		MandarError("MKFS", "No se ha encontrado el disco.", w)
 		return
 	}
 	//Lee los bytes del struct superbloque del archivo
@@ -524,4 +528,5 @@ func ext3(spr Structs.SuperBloque, journal Structs.Journaling, p Structs.Partici
 		}
 	}
 	Mensaje("MKFS", "Se ha formateado un sistema EXT3 en la partición "+nombreParticion+" de manera correcta.")
+	MandarMensaje("MKFS", "Se ha formateado un sistema EXT3 en la partición "+nombreParticion+" de manera correcta.", w)
 }

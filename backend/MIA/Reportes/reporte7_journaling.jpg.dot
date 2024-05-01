@@ -1,0 +1,22 @@
+digraph G {
+  node0 [shape=none label=<
+  <TABLE style="rounded" bgcolor=" #d5f2e9 ">
+  <TR>
+  <TD COLSPAN = '4' bgcolor="  #badbb8 ">REPORTE DE JOURNALING</TD>
+  </TR>
+<TR>
+<TD bgcolor="  #dceddb  ">operacion</TD>
+  <TD bgcolor="  #dceddb ">path</TD>
+    <TD bgcolor="  #dceddb ">contenido</TD>
+      <TD bgcolor="  #dceddb ">fecha</TD>
+  </TR>
+  <TR>
+<TD bgcolor="  #dceddb  "> mkdir</TD>
+  <TD bgcolor="  #dceddb ">/</TD>
+    <TD bgcolor="  #dceddb ">-</TD>
+      <TD bgcolor="  #dceddb ">2024-05-01 13:06</TD>
+  </TR>
+  
+    </TABLE>>];
+
+}

@@ -4,13 +4,14 @@ import (
 	"MIA_P2_202110206/Structs"
 	"bytes"
 	"encoding/binary"
+	"net/http"
 	"os"
 	"strconv"
 	"strings"
 	"unsafe"
 )
 
-func ValidarDatosUsers(context []string, action string) {
+func ValidarDatosUsers(context []string, action string, w http.ResponseWriter) {
 	usr := ""
 	pwd := ""
 	grp := ""
@@ -28,24 +29,28 @@ func ValidarDatosUsers(context []string, action string) {
 	if Comparar(action, "MK") {
 		if usr == "" || pwd == "" || grp == "" {
 			Error(action+"USER", "Se necesitan parametros obligatorio para crear un usuario.")
+			MandarError(action+"USER", "Se necesitan parametros obligatorio para crear un usuario.", w)
 			return
 		}
-		mkuser(usr, pwd, grp)
+		mkuser(usr, pwd, grp, w)
 	} else if Comparar(action, "RM") {
 		if usr == "" {
 			Error(action+"USER", "Se necesitan parametros obligatorios para eliminar un usuario.")
+			MandarError(action+"USER", "Se necesitan parametros obligatorios para eliminar un usuario.", w)
 			return
 		}
-		rmuser(usr)
+		rmuser(usr, w)
 	} else {
 		Error(action+"USER", "No se reconoce este comando.")
+		MandarError(action+"USER", "No se reconoce este comando.", w)
 		return
 	}
 }
 
-func mkuser(usr string, pwd string, grp string) {
+func mkuser(usr string, pwd string, grp string, w http.ResponseWriter) {
 	if !Comparar(Logged.User, "root") {
 		Error("MKUSER", "Solo el usuario \"root\" puede acceder a estos comandos.")
+		MandarError("MKUSER", "Solo el usuario \"root\" puede acceder a estos comandos.", w)
 		return
 	}
 
@@ -53,6 +58,7 @@ func mkuser(usr string, pwd string, grp string) {
 	partition := GetMount("MKUSER", Logged.Id, &path)
 	if string(partition.Part_status) == "0" {
 		Error("MKUSER", "No se encontró la partición montada con el id: "+Logged.Id)
+		MandarError("MKUSER", "No se encontró la partición montada con el id: "+Logged.Id, w)
 		return
 	}
 	//file, err := os.OpenFile(strings.ReplaceAll(path, "\"", ""), os.O_WRONLY, os.ModeAppend)
@@ -95,6 +101,7 @@ func mkuser(usr string, pwd string, grp string) {
 
 		if err_ != nil {
 			Error("MKUSER", "Error al leer el archivo")
+			MandarError("MKUSER", "Error al leer el archivo", w)
 			return
 		}
 
@@ -120,6 +127,7 @@ func mkuser(usr string, pwd string, grp string) {
 	}
 	if !existe {
 		Error("MKUSER", "No se encontró el grupo \""+grp+"\".")
+		MandarError("MKUSER", "No se encontró el grupo \""+grp+"\".", w)
 		return
 	}
 
@@ -132,6 +140,7 @@ func mkuser(usr string, pwd string, grp string) {
 			if in[3] == usr {
 				if linea[0] != '0' {
 					Error("MKUSER", "EL nombre "+usr+", ya está en uso.")
+					MandarError("MKUSER", "EL nombre "+usr+", ya está en uso.", w)
 					return
 				}
 			}
@@ -158,6 +167,7 @@ func mkuser(usr string, pwd string, grp string) {
 	}
 	if len(cadenasS) > 16 {
 		Error("MKUSER", "Se ha llenado la cantidad de archivos posibles y no se pueden generar más.")
+		MandarError("MKUSER", "Se ha llenado la cantidad de archivos posibles y no se pueden generar más.", w)
 		return
 	}
 	file.Close()
@@ -166,6 +176,7 @@ func mkuser(usr string, pwd string, grp string) {
 	//file, err := os.Open(strings.ReplaceAll(path, "\"", ""))
 	if err != nil {
 		Error("MKUSER", "No se ha encontrado el disco.")
+		MandarError("MKUSER", "No se ha encontrado el disco.", w)
 		return
 	}
 
@@ -198,13 +209,15 @@ func mkuser(usr string, pwd string, grp string) {
 	EscribirBytes(file, inodos.Bytes())
 
 	Mensaje("MKUSER", "Usuario "+usr+", creado correctamente!")
+	MandarMensaje("MKUSER", "Usuario "+usr+", creado correctamente!", w)
 
 	file.Close()
 }
 
-func rmuser(n string) {
+func rmuser(n string, w http.ResponseWriter) {
 	if !Comparar(Logged.User, "root") {
 		Error("RMUSER", "Solo el usuario \"root\" puede acceder a estos comandos.")
+		MandarError("RMUSER", "Solo el usuario \"root\" puede acceder a estos comandos.", w)
 		return
 	}
 
@@ -212,12 +225,14 @@ func rmuser(n string) {
 	partition := GetMount("RMUSER", Logged.Id, &path)
 	if string(partition.Part_status) == "0" {
 		Error("RMUSER", "No se encontró la partición montada con el id: "+Logged.Id)
+		MandarError("RMUSER", "No se encontró la partición montada con el id: "+Logged.Id, w)
 		return
 	}
 	//file, err := os.OpenFile(strings.ReplaceAll(path, "\"", ""), os.O_WRONLY, os.ModeAppend)
 	file, err := os.Open(strings.ReplaceAll(path, "\"", ""))
 	if err != nil {
 		Error("RMUSER", "No se ha encontrado el disco.")
+		MandarError("RMUSER", "No se ha encontrado el disco.", w)
 		return
 	}
 
@@ -282,6 +297,7 @@ func rmuser(n string) {
 	}
 	if !existe {
 		Error("RMUSER", "No se encontró el usuario  \""+n+"\".")
+		MandarError("RMUSER", "No se encontró el usuario  \""+n+"\".", w)
 		return
 	}
 	txt = aux
@@ -306,6 +322,7 @@ func rmuser(n string) {
 	}
 	if len(cadenasS) > 16 {
 		Error("RMUSER", "Se ha llenado la cantidad de archivos posibles y no se pueden generar más.")
+		MandarError("RMUSER", "Se ha llenado la cantidad de archivos posibles y no se pueden generar más.", w)
 		return
 	}
 	file.Close()
@@ -314,6 +331,7 @@ func rmuser(n string) {
 	//file, err := os.Open(strings.ReplaceAll(path, "\"", ""))
 	if err != nil {
 		Error("RMUSER", "No se ha encontrado el disco.")
+		MandarError("RMUSER", "No se ha encontrado el disco.", w)
 		return
 	}
 
@@ -346,6 +364,7 @@ func rmuser(n string) {
 	EscribirBytes(file, inodos.Bytes())
 
 	Mensaje("RMUSER", "Usuario "+n+", eliminado correctamente!")
+	MandarMensaje("RMUSER", "Usuario "+n+", eliminado correctamente!", w)
 
 	file.Close()
 }

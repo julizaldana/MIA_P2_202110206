@@ -122,3 +122,54 @@
   
 
   
+
+  .input-container2 {
+    display: flex;
+    align-items: center;
+    background-color: #2b3a5f;
+    padding: 5px 10px; /* Reduzco el padding */
+    gap: 5px;
+    border-radius: 20px;
+    max-width: 950px; /* Limito el ancho máximo del contenedor */
+    margin: 0 auto; /* Centra el contenedor horizontalmente */
+  }
+  
+  .input-container2 .bash-text {
+    font-size: .8rem;
+    color: white;
+    font-family: Consolas, monospace; 
+  }
+  
+  .input-container2 .bash-text .user {
+    color: #E879F9;
+    font-family: Consolas, monospace; 
+  }
+  
+  .input-container2 .bash-text .vm {
+    color: #2DD4BF;
+    font-family: Consolas, monospace; 
+  }
+  
+  .input-container2 .bash-text .char {
+    color: #A78BFA;
+    font-family: Consolas, monospace; 
+  }
+  
+  .input-container2 textarea.input {
+    background-color: transparent;
+    border: none;
+    outline: none;
+    color: white;
+    resize: none; /* Evita que el usuario pueda redimensionar el textarea */
+    width: 100%; /* Ajusta el ancho al 100% del contenedor */
+    height: 100px; /* Ajusta la altura según sea necesario */
+    padding: 5px; /* Añade un poco de relleno para que el texto no esté pegado a los bordes */
+    font-family: Consolas, monospace; /* Utiliza la fuente Consolas */
+  }
+  
+  
+  
+  .input-container2 .bash-text span {
+    display: inline-block; /* Para que el span ocupe solo el ancho necesario */
+    white-space: nowrap; /* Evita que el texto se divida en varias líneas */
+  }

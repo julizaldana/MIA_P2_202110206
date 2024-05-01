@@ -1,0 +1,51 @@
+digraph G{
+ rankdir=TB;
+ forcelabels= true;
+ graph [ dpi = "600"] ; 
+ node [shape = plaintext];
+ nodo1 [label = <<table>
+ <tr>
+ <td ROWSPAN='2'> "MBR" </td><td ROWSPAN='2'> Primaria 
+20.00% del disco </td>
+<td ROWSPAN='2'> Primaria 
+20.00% del disco </td>
+<td ROWSPAN='2'> Primaria 
+10.00% del disco </td>
+<td COLSPAN='29'> Extendida 
+40.00% del disco </td>
+<td ROWSPAN='2'> Libre 
+10.00% del disco </td></tr>
+
+<tr>
+<td>"EBR"</td><td>"Logica
+ 3.00% de la particion extendida"</td>
+<td>"EBR"</td><td>"Logica
+ 3.00% de la particion extendida"</td>
+<td>"EBR"</td><td>"Logica
+ 3.00% de la particion extendida"</td>
+<td>"EBR"</td><td>"Logica
+ 3.00% de la particion extendida"</td>
+<td>"EBR"</td><td>"Logica
+ 3.00% de la particion extendida"</td>
+<td>"EBR"</td><td>"Logica
+ 3.00% de la particion extendida"</td>
+<td>"EBR"</td><td>"Logica
+ 3.00% de la particion extendida"</td>
+<td>"EBR"</td><td>"Logica
+ 3.00% de la particion extendida"</td>
+<td>"EBR"</td><td>"Logica
+ 3.00% de la particion extendida"</td>
+<td>"EBR"</td><td>"Logica
+ 3.00% de la particion extendida"</td>
+<td>"EBR"</td><td>"Logica
+ 3.00% de la particion extendida"</td>
+<td>"EBR"</td><td>"Logica
+ 3.00% de la particion extendida"</td>
+<td>"EBR"</td><td>"Logica
+ 3.00% de la particion extendida"</td>
+<td>"Libre 
+1.00% de la partición extendida. "</td>
+</tr>
+
+</table>>];
+}

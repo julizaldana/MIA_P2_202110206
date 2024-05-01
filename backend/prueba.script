@@ -1,1 +1,1 @@
-rep -id=A106 -path=reporte11.jpg -name=tree
+mkfile -path="/new.txt"

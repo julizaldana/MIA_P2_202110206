@@ -1,0 +1,76 @@
+digraph G {
+  node0 [shape=none label=<
+  <TABLE style="rounded" bgcolor=" #d5f2e9 ">
+  <TR>
+  <TD COLSPAN = '2' bgcolor="  #9bf597 ">REPORTE DE SUPERBLOQUE</TD>
+  </TR>
+  <TR>
+<TD bgcolor=" #cff5e5 ">spr_filesystem_type</TD>
+  <TD bgcolor=" #cff5e5 ">2</TD>
+  </TR>
+  <TR>
+ <TD bgcolor=" #cff5e5 ">spr_inodes_count</TD>
+  <TD bgcolor=" #cff5e5 ">19087</TD>
+  </TR>
+  <TR>
+<TD bgcolor=" #cff5e5 ">spr_blocks_count</TD>
+  <TD bgcolor=" #cff5e5 ">57263</TD>
+  </TR>
+  <TR>
+  <TD bgcolor=" #cff5e5 ">spr_free_inodes_count</TD>
+  <TD bgcolor=" #cff5e5 ">57263</TD>
+  </TR>
+<TR>
+  <TD bgcolor=" #cff5e5 ">spr_free_blocks_count</TD>
+  <TD bgcolor=" #cff5e5 ">57263</TD>
+  </TR>
+ <TR>
+  <TD bgcolor=" #cff5e5 ">spr_mtime</TD>
+  <TD bgcolor=" #cff5e5 ">2024-05-01 13:06</TD>
+  </TR>
+<TR>
+  <TD bgcolor=" #cff5e5 ">sptr_umtime</TD>
+  <TD bgcolor=" #cff5e5 "></TD>
+  </TR>
+ <TR>
+  <TD bgcolor=" #cff5e5 ">spr_mnt_count</TD>
+  <TD bgcolor=" #cff5e5 ">1</TD>
+  </TR>
+ <TR>
+  <TD bgcolor=" #cff5e5 ">spr_magic</TD>
+  <TD bgcolor=" #cff5e5 ">61267</TD>
+  </TR>
+<TR>
+  <TD bgcolor=" #cff5e5 ">spr_inode_s</TD>
+  <TD bgcolor=" #cff5e5 ">216</TD>
+  </TR>
+ <TR>
+  <TD bgcolor=" #cff5e5 ">spr_block_s</TD>
+  <TD bgcolor=" #cff5e5 ">96</TD>
+  </TR>
+  <TR>
+  <TD bgcolor=" #cff5e5 ">spr_first_ino</TD>
+  <TD bgcolor=" #cff5e5 ">0</TD>
+  </TR>
+   <TR>
+  <TD bgcolor=" #cff5e5 ">spr_first_blo</TD>
+  <TD bgcolor=" #cff5e5 ">0</TD>
+  </TR>
+    <TR>
+  <TD bgcolor=" #cff5e5 ">spr_bm_inode_start</TD>
+  <TD bgcolor=" #cff5e5 ">7864472</TD>
+  </TR>
+   <TR>
+  <TD bgcolor=" #cff5e5 ">spr_bm_block_start</TD>
+  <TD bgcolor=" #cff5e5 ">7883559</TD>
+  </TR>
+   <TR>
+  <TD bgcolor=" #cff5e5 ">spr_inode_start</TD>
+  <TD bgcolor=" #cff5e5 ">7940820</TD>
+  </TR>
+  <TR>
+  <TD bgcolor=" #cff5e5 ">spr_block_start</TD>
+  <TD bgcolor=" #cff5e5 ">11987264</TD>
+  </TR></TABLE>>];
+
+}

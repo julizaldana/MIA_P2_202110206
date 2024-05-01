@@ -6,6 +6,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"strconv"
 	"strings"
@@ -29,7 +30,7 @@ type ParticionMontada struct {
 
 // CARNET -> 202110206 (ULTIMOS DOS DIGITOS -> 06)
 
-func ValidarDatosMOUNT(context []string) {
+func ValidarDatosMOUNT(context []string, w http.ResponseWriter) {
 	name := ""
 	driveLetter := "" //SE QUITA Y LE COLOCO EL DRIVELETTER -> Para ir a buscar el archivo binario
 	for i := 0; i < len(context); i++ {
@@ -45,6 +46,7 @@ func ValidarDatosMOUNT(context []string) {
 	}
 	if driveLetter == "" || name == "" {
 		Error("MOUNT", "El comando MOUNT requiere parametros obligatorios")
+		MandarError("MOUNT", "El comando MOUNT requiere parametros obligatorios", w)
 		return
 	} else {
 		// Construir la ruta del archivo basado en el driveLetter
@@ -54,25 +56,28 @@ func ValidarDatosMOUNT(context []string) {
 
 		if !ArchivoExiste(path) {
 			Error("MOUNT", "No se encontró el disco con dicho driveletter")
+			MandarError("MOUNT", "No se encontró el disco con dicho driveletter", w)
 			return
 		}
 
-		mount(path, name, driveLetter)
+		mount(path, name, driveLetter, w)
 		listaMount()
 	}
 
 }
 
-func mount(p string, n string, d string) {
+func mount(p string, n string, d string, w http.ResponseWriter) {
 	file, error_ := os.Open(p)
 	if error_ != nil {
 		Error("MOUNT", "No se ha podido abrir el archivo.")
+		MandarError("MOUNT", "No se ha podido abrir el archivo.", w)
 		return
 	}
 	// Obtener el número de la partición del nombre, donde se corta el nombre de la partición. EJ: Part2, me queda solo (2), Part3, me queda solo (3)
 	numParticion, err := strconv.Atoi(strings.TrimPrefix(n, "Part"))
 	if err != nil {
 		Error("MOUNT", "No se pudo obtener el número de la partición del nombre.")
+		MandarError("MOUNT", "No se pudo obtener el número de la partición del nombre.", w)
 		return
 	}
 
@@ -94,6 +99,7 @@ func mount(p string, n string, d string) {
 		copy(nombre[:], n)
 		if particion.Part_name == nombre && particion.Part_type == 'E' {
 			Error("MOUNT", "No se puede montar una partición extendida.")
+			MandarError("MOUNT", "No se puede montar una partición extendida.", w)
 			return
 		} else {
 			ebrs := GetLogicas(*particion, p)
@@ -114,11 +120,13 @@ func mount(p string, n string, d string) {
 						break
 					} else if nombreebr == n && ebr.Part_mount == '0' {
 						Error("MOUNT", "No se puede montar una partición Lógica eliminada.")
+						MandarError("MOUNT", "No se puede montar una partición Lógica eliminada.", w)
 						return
 					}
 				}
 				if !encontrada {
 					Error("MOUNT", "No se encontró la partición Lógica.")
+					MandarError("MOUNT", "No se encontró la partición Lógica.", w)
 					return
 				}
 			}
@@ -133,6 +141,7 @@ func mount(p string, n string, d string) {
 				copy(nombre[:], n)
 				if DiscMont[i].Particiones[j].Nombre == nombre {
 					Error("MOUNT", "Ya se ha montado la partición "+n)
+					MandarError("MOUNT", "Ya se ha montado la partición "+n, w)
 					return
 				}
 				if DiscMont[i].Particiones[j].Estado == 0 {
@@ -141,6 +150,7 @@ func mount(p string, n string, d string) {
 					re := d + strconv.Itoa(numParticion) + "06"
 					copy(DiscMont[i].Particiones[j].Id[:], re)
 					Mensaje("MOUNT", "Se ha realizado correctamente el mount -id = "+re)
+					MandarMensaje("MOUNT", "Se ha realizado correctamente el mount -id = "+re, w)
 					return
 				}
 			}
@@ -157,6 +167,8 @@ func mount(p string, n string, d string) {
 					re := d + strconv.Itoa(numParticion) + "06"
 					copy(DiscMont[i].Particiones[j].Id[:], re)
 					Mensaje("MOUNT", "Se ha realizado correctamente el mount -id = "+re)
+					MandarMensaje("MOUNT", "Se ha realizado correctamente el mount -id = "+re, w)
+
 					return
 				}
 			}
@@ -283,7 +295,7 @@ func ListaPartMount() []PartMontada {
 	return particionesMontadas
 }
 
-func ValidarDatosUNMOUNT(context []string) {
+func ValidarDatosUNMOUNT(context []string, w http.ResponseWriter) {
 	id := ""
 	for i := 0; i < len(context); i++ {
 		current := context[i]
@@ -294,16 +306,17 @@ func ValidarDatosUNMOUNT(context []string) {
 	}
 	if id == "" {
 		Error("UNMOUNT", "El comando UNMOUNT requiere el id de forma obligatoria")
+		MandarError("UNMOUNT", "El comando UNMOUNT requiere el id de forma obligatoria", w)
 		return
 	} else {
-		unmount(id)
+		unmount(id, w)
 		listaMount()
 	}
 
 }
 
 // SE HACE UNA FUNCION UNMOUNT PARA PODER BUSCAR EL ID DENTRO DE LA ESTRUCTURA DE PARTICIONES Y SE DESMONTA SI EXISTE
-func unmount(id string) {
+func unmount(id string, w http.ResponseWriter) {
 	for i := 0; i < 99; i++ {
 		for j := 0; j < 26; j++ {
 			if DiscMont[i].Particiones[j].Estado == 1 {
@@ -320,10 +333,12 @@ func unmount(id string) {
 					DiscMont[i].Particiones[j].Id = [4]byte{}
 					DiscMont[i].Particiones[j].Nombre = [20]byte{}
 					fmt.Println("Partición desmontada exitosamente.")
+					MandarMensaje("UNMOUNT", "Partición se desmontó correctamente ", w)
 					return
 				}
 			}
 		}
 	} //SI NO SE ENCUENTRA LA PARTICION EN LA ESTRUCTURA, se manda un mensaje de que no se encontró
 	Error("UNMOUNT", "No se encontró la partición con el ID proporcionado.")
+	MandarError("UNMOUNT", "No se encontró la partición con el ID proporcionado.", w)
 }

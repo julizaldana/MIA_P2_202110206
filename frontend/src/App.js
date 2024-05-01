@@ -7,6 +7,7 @@ import Pantalla3 from "./pages/Pantalla3";
 import Pantalla2p from "./pages/Pantalla2p";
 import Pantalla2Login from "./pages/Pantalla2Login";
 import Pantalla2Fs from "./pages/Pantalla2Fs";
+import Footer from "./components/footer"
 import './css/App.css'; 
 
 
@@ -20,8 +21,9 @@ function App() {
         <Route path='/pantalla3' element={<Pantalla3/>}/>
         <Route path="/particiones/:nombreDisco" element={<Pantalla2p/>}/>
         <Route path="/login/:idParticion" element={<Pantalla2Login/>}/>
-        <Route path="/logueado/:user" element={<Pantalla2Fs/>}/>
+        <Route path="/logueado/:idParticion/:user" element={<Pantalla2Fs/>}/>
       </Routes>
+      <Footer/>
     </Router>
   );
 }

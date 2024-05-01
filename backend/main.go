@@ -47,11 +47,13 @@ func main() {
 	//Ruta para notificaciones "/notificacion"
 	router.HandleFunc("/notificacion", Comandos.ObtenerMensajes).Methods("GET")
 	//Ruta para mandar los datos de las particiones
-	//router.HandleFunc("/obtenerparticiones", enviarListaParticiones).Methods("GET")
-	//router.HandleFunc("/verparticiones", verParticiones).Methods("POST")
+	router.HandleFunc("/mandarnombredisco", Comandos.RecibirNombreDisco).Methods("POST")
+	router.HandleFunc("/enviarparticiones", sendPartitions).Methods("GET")
 	// Ruta para obtener la lista de particiones montadas
 	//router.HandleFunc("/obtenerparticionesmontadas", Comandos.ObtenerParticionesMontadas).Methods("GET")
 	router.HandleFunc("/obtenerreportes", obtenerReportes).Methods("GET")
+	router.HandleFunc("/mandaridparticion", Comandos.RecibirIdParticion).Methods("POST")
+	router.HandleFunc("/enviararchivos", sendFiledata).Methods("GET")
 	router.HandleFunc("/iniciarsesion", analizador).Methods("POST")
 	router.HandleFunc("/logout", analizador).Methods("POST")
 	router.HandleFunc("/obtenerparticionesmontadas", func(w http.ResponseWriter, r *http.Request) {
@@ -97,6 +99,105 @@ func inicial(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "<h1>¡Hola Desde el servidor!</h1>")
 }
 */
+// Función para enviar la lista de informacion del sistema al frontend
+func sendFiledata(w http.ResponseWriter, r *http.Request) {
+	// Obtener la lista de archivos en la carpeta
+	archivos, err := ioutil.ReadDir("./MIA/Almacenamiento")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Crear una estructura para almacenar los nombres de las particiones
+	var datafile []string
+
+	// Leer cada archivo en la carpeta
+	for _, archivo := range archivos {
+		// Ignorar los directorios
+		if !archivo.IsDir() {
+			// Leer el contenido del archivo línea por línea
+			contenido, err := ioutil.ReadFile("./MIA/Almacenamiento/" + archivo.Name())
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			// Dividir el contenido en líneas
+			lineas := strings.Split(string(contenido), "\n")
+
+			// Agregar cada línea no vacía a la lista de particiones
+			for _, linea := range lineas {
+				linea = strings.TrimSpace(linea) // Eliminar espacios en blanco al inicio y al final de la línea
+				if linea != "" && linea != "." && linea != ".." {
+					datafile = append(datafile, linea)
+				}
+			}
+		}
+	}
+
+	// Estructurar la lista de particiones en formato JSON
+	jsonData, err := json.Marshal(datafile)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Configurar el encabezado de respuesta como JSON
+	w.Header().Set("Content-Type", "application/json")
+
+	// Enviar la lista de particiones como respuesta
+	w.Write(jsonData)
+}
+
+// Función para enviar la lista de particiones al frontend
+func sendPartitions(w http.ResponseWriter, r *http.Request) {
+	// Obtener la lista de archivos en la carpeta
+	archivos, err := ioutil.ReadDir("./MIA/Particiones")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Crear una estructura para almacenar los nombres de las particiones
+	var particiones []string
+
+	// Leer cada archivo en la carpeta
+	for _, archivo := range archivos {
+		// Ignorar los directorios
+		if !archivo.IsDir() {
+			// Leer el contenido del archivo línea por línea
+			contenido, err := ioutil.ReadFile("./MIA/Particiones/" + archivo.Name())
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			// Dividir el contenido en líneas
+			lineas := strings.Split(string(contenido), "\n")
+
+			// Agregar cada línea no vacía a la lista de particiones
+			for _, linea := range lineas {
+				linea = strings.TrimSpace(linea) // Eliminar espacios en blanco al inicio y al final de la línea
+				if linea != "" {
+					particiones = append(particiones, linea)
+				}
+			}
+		}
+	}
+
+	// Estructurar la lista de particiones en formato JSON
+	jsonData, err := json.Marshal(particiones)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Configurar el encabezado de respuesta como JSON
+	w.Header().Set("Content-Type", "application/json")
+
+	// Enviar la lista de particiones como respuesta
+	w.Write(jsonData)
+}
 
 func analizador(w http.ResponseWriter, r *http.Request) {
 	var datos DatosEntrada                        //se realiza una variable con estructura
@@ -139,7 +240,7 @@ func verParticiones(w http.ResponseWriter, r *http.Request) {
 }
 */
 
-//FUNCION PARA OBTENER REPORTES DE BACKEND
+// FUNCION PARA OBTENER REPORTES DE BACKEND
 func obtenerReportes(w http.ResponseWriter, r *http.Request) {
 	// Obtener la lista de archivos en la carpeta
 	archivos, err := ioutil.ReadDir("./MIA/Reportes")
@@ -210,14 +311,6 @@ func obtenerNombresArchivos(w http.ResponseWriter, r *http.Request) {
 
 	// Convertir la lista de nombres de los discos a JSON y enviarla como respuesta
 	json.NewEncoder(w).Encode(nombres)
-}
-
-func MandarError(op string, mensaje string, w http.ResponseWriter) {
-	// Construye el mensaje de error
-	mensajeError := ("\tERROR " + op + "\n\tTIPO: " + mensaje)
-
-	// Envía el mensaje de error al frontend
-	Comandos.MandarMensaje("ERROR", mensajeError, w)
 }
 
 /*
@@ -334,100 +427,103 @@ func funciones(token string, tks []string, w http.ResponseWriter) {
 			Comandos.ValidarDatosMKDISK(tks, w)
 		} else if Comandos.Comparar(token, "RMDISK") {
 			fmt.Println("=*=*=*=*=*=*= FUNCION RMDISK =*=*=*=*=*=*=*=")
-			Comandos.RMDISK(tks)
+			Comandos.RMDISK(tks, w)
 		} else if Comandos.Comparar(token, "FDISK") {
 			fmt.Println("=*=*=*=*=*=*= FUNCION FDISK =*=*=*=*=*=*=*=")
-			Comandos.ValidarDatosFDISK(tks)
+			Comandos.ValidarDatosFDISK(tks, w)
 		} else if Comandos.Comparar(token, "REP") {
 			fmt.Println("=*=*=*=*=*=*= FUNCION REP =*=*=*=*=*=*=*=")
-			Comandos.ValidarDatosREP(tks)
+			Comandos.ValidarDatosREP(tks, w)
 		} else if Comandos.Comparar(token, "MOUNT") {
 			fmt.Println("=*=*=*=*=*=*= FUNCION MOUNT =*=*=*=*=*=*=*=")
-			Comandos.ValidarDatosMOUNT(tks)
+			Comandos.ValidarDatosMOUNT(tks, w)
 		} else if Comandos.Comparar(token, "UNMOUNT") {
 			fmt.Println("=*=*=*=*=*=*= FUNCION UNMOUNT =*=*=*=*=*=*=*=")
-			Comandos.ValidarDatosUNMOUNT(tks)
+			Comandos.ValidarDatosUNMOUNT(tks, w)
 		} else if Comandos.Comparar(token, "MKFS") {
 			fmt.Println("=*=*=*=*=*=*= FUNCION MKFS =*=*=*=*=*=*=*=")
-			Comandos.ValidarDatosMKFS(tks)
+			Comandos.ValidarDatosMKFS(tks, w)
 		} else if Comandos.Comparar(token, "LOGIN") {
 			fmt.Println("=*=*=*=*=*=*= FUNCION LOGIN =*=*=*=*=*=*=*=")
 			if logued {
 				Comandos.Error("LOGIN", "Ya hay un usuario en línea.")
+				Comandos.MandarError("LOGIN", "No se puede hacer LOGIN porque ya hay un usuario en línea.", w)
 				return
 			} else {
-				logued = Comandos.ValidarDatosLOGIN(tks)
+				logued = Comandos.ValidarDatosLOGIN(tks, w)
 			}
 		} else if Comandos.Comparar(token, "LOGOUT") {
 			fmt.Println("=*=*=*=*=*=*= FUNCION LOGOUT =*=*=*=*=*=*=*=")
 			if !logued {
 				Comandos.Error("LOGOUT", "Aún no se ha iniciado sesión.")
+				Comandos.MandarError("LOGOUT", "No se puede hacer un LOGOUT sin una sesión iniciada.", w)
 				return
 			} else {
-				logued = Comandos.CerrarSesion()
+				logued = Comandos.CerrarSesion(w)
 			}
 		} else if Comandos.Comparar(token, "MKGRP") {
 			fmt.Println("=*=*=*=*=*=*= FUNCION MKGRP =*=*=*=*=*=*=*=")
 			if !logued {
 				Comandos.Error("MKGRP", "Aún no se ha iniciado sesión.")
+				Comandos.MandarError("MKGRP", "No se ha iniciado sesión para ejecutar este comando.", w)
 				return
 			} else {
-				Comandos.ValidarDatosGrupos(tks, "MK")
+				Comandos.ValidarDatosGrupos(tks, "MK", w)
 			}
 		} else if Comandos.Comparar(token, "RMGRP") {
 			fmt.Println("=*=*=*=*=*=*= FUNCION RMGRP =*=*=*=*=*=*=*=")
 			if !logued {
 				Comandos.Error("RMGRP", "Aún no se ha iniciado sesión.")
+				Comandos.MandarError("RMGRP", "No se ha iniciado sesión para ejecutar este comando.", w)
 				return
 			} else {
-				Comandos.ValidarDatosGrupos(tks, "RM")
+				Comandos.ValidarDatosGrupos(tks, "RM", w)
 			}
 		} else if Comandos.Comparar(token, "MKUSR") {
 			fmt.Println("=*=*=*=*=*=*= FUNCION MKUSR =*=*=*=*=*=*=*=")
 			if !logued {
 				Comandos.Error("MKUSR", "Aún no se ha iniciado sesión.")
+				Comandos.MandarError("MKUSR", "No se ha iniciado sesión para ejecutar este comando.", w)
 				return
 			} else {
-				Comandos.ValidarDatosUsers(tks, "MK")
+				Comandos.ValidarDatosUsers(tks, "MK", w)
 			}
 		} else if Comandos.Comparar(token, "RMUSR") {
 			fmt.Println("=*=*=*=*=*=*= FUNCION RMUSR =*=*=*=*=*=*=*=")
 			if !logued {
 				Comandos.Error("RMUSR", "Aún no se ha iniciado sesión.")
+				Comandos.MandarError("RMUSR", "No se ha iniciado sesión para ejecutar este comando.", w)
 				return
 			} else {
-				Comandos.ValidarDatosUsers(tks, "RM")
-			}
-		} else if Comandos.Comparar(token, "RMUSR") {
-			fmt.Println("=*=*=*=*=*=*= FUNCION RMUSR =*=*=*=*=*=*=*=")
-			if !logued {
-				Comandos.Error("RMUSR", "Aún no se ha iniciado sesión.")
-				return
-			} else {
-				Comandos.ValidarDatosUsers(tks, "RM")
+				Comandos.ValidarDatosUsers(tks, "RM", w)
 			}
 		} else if Comandos.Comparar(token, "MKDIR") {
 			fmt.Println("=*=*=*=*=*=*= FUNCION MKDIR =*=*=*=*=*=*=*=")
 			if !logued {
 				Comandos.Error("MKDIR", "Aún no se ha iniciado sesión con ningún usuario.")
+				Comandos.MandarError("MKDIR", "No se ha iniciado sesión para ejecutar este comando.", w)
 				return
 			} else {
 				var p string
 				particion := Comandos.GetMount("MKDIR", Comandos.Logged.Id, &p)
-				Comandos.ValidarDatosMKDIR(tks, particion, p)
+				Comandos.ValidarDatosMKDIR(tks, particion, p, w)
 			}
 		} else if Comandos.Comparar(token, "MKFILE") {
 			fmt.Println("=*=*=*=*=*=*= FUNCION MKFILE =*=*=*=*=*=*=*=")
 			if !logued {
 				Comandos.Error("MKFILE", "Aún no se ha iniciado sesión con ningún usuario.")
+				Comandos.MandarError("MKFILE", "No se ha iniciado sesión para ejecutar este comando.", w)
 				return
 			} else {
-				Comandos.ValidarDatosMKFILE(tks)
+				var p string
+				particion := Comandos.GetMount("MKFILE", Comandos.Logged.Id, &p)
+				Comandos.ValidarDatosMKFILE(tks, particion, p, w)
 			}
 		} else if Comandos.Comparar(token, "CAT") {
 			fmt.Println("=*=*=*=*=*=*= FUNCION CAT =*=*=*=*=*=*=*=")
 			if !logued {
 				Comandos.Error("CAT", "Aún no se ha iniciado sesión con ningún usuario.")
+				Comandos.MandarError("CAT", "No se ha iniciado sesión para ejecutar este comando.", w)
 				return
 			} else {
 				//Comandos.ValidarDatosCAT(tks)
@@ -436,6 +532,7 @@ func funciones(token string, tks []string, w http.ResponseWriter) {
 			fmt.Println("=*=*=*=*=*=*= FUNCION REMOVE =*=*=*=*=*=*=*=")
 			if !logued {
 				Comandos.Error("REMOVE", "Aún no se ha iniciado sesión con ningún usuario.")
+				Comandos.MandarError("REMOVE", "No se ha iniciado sesión para ejecutar este comando.", w)
 				return
 			} else {
 				//Comandos.ValidarDatosREMOVE(tks)
@@ -444,6 +541,7 @@ func funciones(token string, tks []string, w http.ResponseWriter) {
 			fmt.Println("=*=*=*=*=*=*= FUNCION EDIT =*=*=*=*=*=*=*=")
 			if !logued {
 				Comandos.Error("EDIT", "Aún no se ha iniciado sesión con ningún usuario.")
+				Comandos.MandarError("EDIT", "No se ha iniciado sesión para ejecutar este comando.", w)
 				return
 			} else {
 				//Comandos.ValidarDatosEDIT(tks)
@@ -452,6 +550,7 @@ func funciones(token string, tks []string, w http.ResponseWriter) {
 			fmt.Println("=*=*=*=*=*=*= FUNCION RENAME =*=*=*=*=*=*=*=")
 			if !logued {
 				Comandos.Error("RENAME", "Aún no se ha iniciado sesión con ningún usuario.")
+				Comandos.MandarError("RENAME", "No se ha iniciado sesión para ejecutar este comando.", w)
 				return
 			} else {
 				//Comandos.ValidarDatosRENAME(tks)
@@ -459,7 +558,8 @@ func funciones(token string, tks []string, w http.ResponseWriter) {
 		} else if Comandos.Comparar(token, "COPY") {
 			fmt.Println("=*=*=*=*=*=*= FUNCION COPY =*=*=*=*=*=*=*=")
 			if !logued {
-				Comandos.Error("RENAME", "Aún no se ha iniciado sesión con ningún usuario.")
+				Comandos.Error("COPY", "Aún no se ha iniciado sesión con ningún usuario.")
+				Comandos.MandarError("COPY", "No se ha iniciado sesión para ejecutar este comando.", w)
 				return
 			} else {
 				//Comandos.ValidarDatosCOPY(tks)
@@ -467,7 +567,8 @@ func funciones(token string, tks []string, w http.ResponseWriter) {
 		} else if Comandos.Comparar(token, "MOVE") {
 			fmt.Println("=*=*=*=*=*=*= FUNCION MOVE =*=*=*=*=*=*=*=")
 			if !logued {
-				Comandos.Error("RENAME", "Aún no se ha iniciado sesión con ningún usuario.")
+				Comandos.Error("MOVE", "Aún no se ha iniciado sesión con ningún usuario.")
+				Comandos.MandarError("CHOWN", "No se ha iniciado sesión para ejecutar este comando.", w)
 				return
 			} else {
 				//Comandos.ValidarDatosMOVE(tks)
@@ -475,7 +576,8 @@ func funciones(token string, tks []string, w http.ResponseWriter) {
 		} else if Comandos.Comparar(token, "FIND") {
 			fmt.Println("=*=*=*=*=*=*= FUNCION FIND =*=*=*=*=*=*=*=")
 			if !logued {
-				Comandos.Error("RENAME", "Aún no se ha iniciado sesión con ningún usuario.")
+				Comandos.Error("FIND", "Aún no se ha iniciado sesión con ningún usuario.")
+				Comandos.MandarError("CHOWN", "No se ha iniciado sesión para ejecutar este comando.", w)
 				return
 			} else {
 				//Comandos.ValidarDatosFIND(tks)
@@ -483,7 +585,8 @@ func funciones(token string, tks []string, w http.ResponseWriter) {
 		} else if Comandos.Comparar(token, "CHMOD") {
 			fmt.Println("=*=*=*=*=*=*= FUNCION CHMOD =*=*=*=*=*=*=*=")
 			if !logued {
-				Comandos.Error("RENAME", "Aún no se ha iniciado sesión con ningún usuario.")
+				Comandos.Error("CHMOD", "Aún no se ha iniciado sesión con ningún usuario.")
+				Comandos.MandarError("CHOWN", "No se ha iniciado sesión para ejecutar este comando.", w)
 				return
 			} else {
 				//Comandos.ValidarDatosCHMOD(tks)
@@ -492,6 +595,7 @@ func funciones(token string, tks []string, w http.ResponseWriter) {
 			fmt.Println("=*=*=*=*=*=*= FUNCION CHGRP =*=*=*=*=*=*=*=")
 			if !logued {
 				Comandos.Error("CHGRP", "Aún no se ha iniciado sesión con ningún usuario.")
+				Comandos.MandarError("CHOWN", "No se ha iniciado sesión para ejecutar este comando.", w)
 				return
 			} else {
 				Comandos.ValidarDatosCHGRP(tks)
@@ -499,14 +603,15 @@ func funciones(token string, tks []string, w http.ResponseWriter) {
 		} else if Comandos.Comparar(token, "CHOWN") {
 			fmt.Println("=*=*=*=*=*=*= FUNCION CHOWN =*=*=*=*=*=*=*=")
 			if !logued {
-				Comandos.Error("RENAME", "Aún no se ha iniciado sesión con ningún usuario.")
+				Comandos.Error("CHOWN", "Aún no se ha iniciado sesión con ningún usuario.")
+				Comandos.MandarError("CHOWN", "No se ha iniciado sesión para ejecutar este comando.", w)
 				return
 			} else {
 				//Comandos.ValidarDatosCHOWN(tks)
 			}
 		} else {
 			Comandos.Error("ANALIZADOR", "No se reconoce el comando \""+token+"\"")
-			MandarError("ANALIZADOR", "No se reconoce el comando \""+token+"\"", w)
+			Comandos.MandarError("ANALIZADOR", "No se reconoce el comando \""+token+"\"", w)
 		}
 	}
 }

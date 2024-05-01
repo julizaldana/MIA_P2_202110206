@@ -1,0 +1,9 @@
+version: '2.27.0'
+
+services:
+  backend:
+    restart: always
+    build: ./backend
+    container_name: backend
+    ports:
+      - "8080:8080"

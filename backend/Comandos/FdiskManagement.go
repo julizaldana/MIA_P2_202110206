@@ -4,6 +4,7 @@ import (
 	"MIA_P2_202110206/Structs"
 	"bytes"
 	"encoding/binary"
+	"net/http"
 	"os"
 	"strconv"
 	"strings"
@@ -21,7 +22,7 @@ type Transition struct {
 
 var startValue int
 
-func ValidarDatosFDISK(tokens []string) {
+func ValidarDatosFDISK(tokens []string, w http.ResponseWriter) {
 	size := ""
 	driveLetter := "" //MIA/P1, ya tengo que tener la ruta quemada, y tengo que tener el parametro driveletter - IMPORTANTE
 	name := ""        //Delete y Add agregar parametros
@@ -48,6 +49,7 @@ func ValidarDatosFDISK(tokens []string) {
 
 	if size == "" || driveLetter == "" || name == "" {
 		Error("FDISK", "El comando FDISK necesita parametros obligatorios")
+		MandarError("FDISK", "El comando FDISK necesita parametros obligatorios", w)
 		return
 	} else {
 		// Construir la ruta del archivo basado en el driveLetter
@@ -57,23 +59,26 @@ func ValidarDatosFDISK(tokens []string) {
 
 		if !ArchivoExiste(path) {
 			Error("FDISK", "No se encontró el disco con dicho driveletter")
+			MandarError("FDISK", "No se encontró el disco con dicho driveletter", w)
 			return
 		}
 
 		// Pasar la ruta construida a la función generarParticion
-		generarParticion(size, unit, path, tipo, fit, name)
+		generarParticion(size, unit, path, tipo, fit, name, w)
 	}
 }
 
-func generarParticion(s string, u string, p string, t string, f string, n string) {
+func generarParticion(s string, u string, p string, t string, f string, n string, w http.ResponseWriter) {
 	startValue = 0
 	i, error_ := strconv.Atoi(s) //string a entero, i es un entero
 	if error_ != nil {
 		Error("FDISK", "Size debe ser un número entero")
+		MandarError("FDISK", "Size debe ser un número entero", w)
 		return
 	}
 	if i <= 0 {
 		Error("FDISK", "Size debe ser mayor que 0")
+		MandarError("FDISK", "Size debe ser mayor que 0", w)
 		return
 	}
 	if Comparar(u, "b") || Comparar(u, "k") || Comparar(u, "m") {
@@ -84,14 +89,17 @@ func generarParticion(s string, u string, p string, t string, f string, n string
 		}
 	} else {
 		Error("FDISK", "Unit no contiene los valores esperados.")
+		MandarError("FDISK", "Size debe ser mayor que 0", w)
 		return
 	}
 	if !(Comparar(t, "p") || Comparar(t, "e") || Comparar(t, "l")) {
 		Error("FDISK", "Type no contiene los valores esperados.")
+		MandarError("FDISK", "Type no contiene los valores esperados.", w)
 		return
 	}
 	if !(Comparar(f, "bf") || Comparar(f, "ff") || Comparar(f, "wf")) {
 		Error("FDISK", "Fit no contiene los valores esperados.")
+		MandarError("FDISK", "Fit no contiene los valores esperados.", w)
 		return
 	}
 	mbr := leerDisco(p)
@@ -128,15 +136,18 @@ func generarParticion(s string, u string, p string, t string, f string, n string
 		}
 		if usado == 4 && !Comparar(t, "l") {
 			Error("FDISK", "Limite de particiones alcanzado")
+			MandarError("FDISK", "Limite de particiones alcanzado", w)
 			return
 		} else if ext == 1 && Comparar(t, "e") {
 			Error("FDISK", "Solo se puede crear una partición extendida")
+			MandarError("FDISK", "Solo se puede crear una partición extendida", w)
 			return
 		}
 		c++
 	}
 	if ext == 0 && Comparar(t, "l") {
 		Error("FDISK", "Aún no se han creado particiones extendidas, no se puede agregar una lógica.")
+		MandarError("FDISK", "Aún no se han creado particiones extendidas, no se puede agregar una lógica.", w)
 		return
 	}
 	if usado != 0 { //que ya existe una particion
@@ -145,6 +156,7 @@ func generarParticion(s string, u string, p string, t string, f string, n string
 	regresa := BuscarParticiones(*mbr, n, p)
 	if regresa != nil {
 		Error("FDISK", "El nombre: "+n+", ya está en uso.")
+		MandarError("FDISK", "El nombre: "+n+", ya está en uso.", w)
 		return
 	}
 	temporal := Structs.NewParticion()
@@ -155,7 +167,7 @@ func generarParticion(s string, u string, p string, t string, f string, n string
 	copy(temporal.Part_name[:], n)
 
 	if Comparar(t, "l") {
-		Logica(temporal, extended, p) //SE CREA LA PARTICION LOGICA
+		Logica(temporal, extended, p, w) //SE CREA LA PARTICION LOGICA
 		return
 	}
 	//HACER EL AJUSTE DE LA PARTICIÓN
@@ -166,6 +178,7 @@ func generarParticion(s string, u string, p string, t string, f string, n string
 	file, err := os.OpenFile(strings.ReplaceAll(p, "\"", ""), os.O_WRONLY, os.ModeAppend)
 	if err != nil {
 		Error("FDISK", "Error al abrir el archivo")
+		MandarError("FDISK", "Error al abrir el archivo", w)
 	}
 	file.Seek(0, 0)
 	var binario2 bytes.Buffer
@@ -183,10 +196,13 @@ func generarParticion(s string, u string, p string, t string, f string, n string
 		binary.Write(&binario3, binary.BigEndian, ebr)
 		EscribirBytes(file, binario3.Bytes())
 		Mensaje("FDISK", "Partición Extendida: "+n+", creada correctamente.")
+		MandarMensaje("FDISK", "Partición Extendida: "+n+", creada correctamente.", w)
+
 		return
 	}
 	file.Close()
 	Mensaje("FDISK", "Partición Primaria: "+n+", creada correctamente.")
+	MandarMensaje("FDISK", "Partición Primaria: "+n+", creada correctamente.", w)
 }
 
 // LEE EL MBR, Y RETORNA INFORMACION DE PARTICION 1, PARTICION 2, PARTICION 3, PARTICION 4, COMO SI FUESE UN ARREGLO
@@ -260,6 +276,7 @@ func GetLogicas(particion Structs.Particion, path string) []Structs.EBR {
 	file, err := os.Open(strings.ReplaceAll(path, "\"", ""))
 	if err != nil {
 		Error("FDISK", "Error al abrir el archivo")
+		//MandarError("FDISK", "Error al abrir el archivo", w)
 		return nil
 	}
 	file.Seek(0, 0)
@@ -271,6 +288,7 @@ func GetLogicas(particion Structs.Particion, path string) []Structs.EBR {
 	err_ := binary.Read(buffer, binary.BigEndian, &tmp)
 	if err_ != nil {
 		Error("FDSIK", "Error al leer el archivo")
+		//MandarError("FDISK", "Error al abrir el archivo", w)
 		return nil
 	}
 	for {
@@ -283,6 +301,7 @@ func GetLogicas(particion Structs.Particion, path string) []Structs.EBR {
 			err_ = binary.Read(buffer, binary.BigEndian, &tmp)
 			if err_ != nil {
 				Error("FDSIK", "Error al leer el archivo")
+				//MandarError("FDISK", "Error al abrir el archivo", w)
 				return nil
 			}
 		} else {
@@ -295,7 +314,7 @@ func GetLogicas(particion Structs.Particion, path string) []Structs.EBR {
 }
 
 // Funcion para crear una particion logica
-func Logica(particion Structs.Particion, ep Structs.Particion, path string) {
+func Logica(particion Structs.Particion, ep Structs.Particion, path string, w http.ResponseWriter) {
 	logic := Structs.NewEBR()
 	logic.Part_mount = '1'
 	logic.Part_fit = particion.Part_fit
@@ -306,6 +325,7 @@ func Logica(particion Structs.Particion, ep Structs.Particion, path string) {
 	file, err := os.Open(strings.ReplaceAll(path, "\"", ""))
 	if err != nil {
 		Error("FDISK", "Error al abrir el archivo del disco.")
+		MandarError("FDISK", "Error al abrir el archivo", w)
 		return
 	}
 	file.Seek(0, 0)
@@ -322,10 +342,12 @@ func Logica(particion Structs.Particion, ep Structs.Particion, path string) {
 
 	if err_ != nil {
 		Error("FDSIK", "Error al leer el archivo")
+		MandarError("FDISK", "Error al abrir el archivo", w)
 		return
 	}
 	if err != nil {
 		Error("FDISK", "Error al abrir el archivo del disco.")
+		MandarError("FDISK", "Error al abrir el archivo del disco.", w)
 		return
 	}
 	var size int64 = 0
@@ -338,6 +360,7 @@ func Logica(particion Structs.Particion, ep Structs.Particion, path string) {
 			logic.Part_next = logic.Part_start + logic.Part_s + int64(unsafe.Sizeof(Structs.EBR{}))
 			if (ep.Part_s - size) <= logic.Part_s {
 				Error("FDISK", "No queda más espacio para crear más particiones lógicas")
+				MandarError("FDISK", "No queda más espacio para crear más particiones lógicas", w)
 				return
 			}
 			file.Seek(logic.Part_start, 0)
@@ -362,12 +385,14 @@ func Logica(particion Structs.Particion, ep Structs.Particion, path string) {
 			EscribirBytes(file, binarioLogico.Bytes())
 
 			Mensaje("FDISK", "Partición Lógica: "+nombre+", creada correctamente.")
+			MandarMensaje("FDISK", "Partición Lógica: "+nombre+", creada correctamente.", w)
 			file.Close()
 			return
 		}
 		file, err = os.Open(strings.ReplaceAll(path, "\"", ""))
 		if err != nil {
 			Error("FDISK", "Error al abrir el archivo del disco.")
+			MandarError("FDISK", "Error al abrir el archivo del disco.", w)
 			return
 		}
 		file.Seek(tmp.Part_next, 0)
@@ -493,6 +518,7 @@ func ajustar(mbr Structs.MBR, p Structs.Particion, t []Transition, ps []Structs.
 			return &mbr
 		} else {
 			Error("FDISK", "No hay espacio suficiente.")
+			//MandarError("FDISK", "No hay espacio suficiente.", w)
 			return nil
 		}
 	}

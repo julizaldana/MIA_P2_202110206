@@ -1,0 +1,10 @@
+.footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background-color:  #24282c; /* Cambia el color de fondo del footer */
+    color: #333b42; /* Cambia el color del texto del footer */
+    text-align: center;
+    padding: 5px 0; /* Ajusta el relleno superior e inferior según sea necesario */
+  }
+  

@@ -5,17 +5,14 @@ digraph G{
  node [shape = plaintext];
  nodo1 [label = <<table>
  <tr>
- <td ROWSPAN='2'> "MBR" </td><td COLSPAN='5'> Extendida 
-25.00% del disco </td>
+ <td ROWSPAN='2'> "MBR" </td><td ROWSPAN='2'> Primaria 
+40.00% del disco </td>
+<td ROWSPAN='2'> Primaria 
+40.00% del disco </td>
+<td ROWSPAN='2'> Primaria 
+10.00% del disco </td>
 <td ROWSPAN='2'> Libre 
-75.00% del disco </td></tr>
-
-<tr>
-<td>"EBR"</td><td>"Logica
- 5.00% de la particion extendida"</td>
-<td>"Libre 
-20.00% de la partición extendida. "</td>
-</tr>
+10.00% del disco </td></tr>
 
 </table>>];
 }

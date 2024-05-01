@@ -5,6 +5,7 @@ import "../css/Pantalla1.css";
 const Pantalla1 = () => {
     const [comando, setComando] = useState('');
     const [notificacion, setNotificacion] = useState({ tipo: '', mensaje: '' });
+    const [notificacionesRecibidas, setNotificacionesRecibidas] = useState('');
 
     // Función para manejar el envío del formulario
     const handleSubmit = async () => {
@@ -16,7 +17,6 @@ const Pantalla1 = () => {
             const response = await axios.post('http://localhost:8080/analizador', data);
             console.log(response.data);
             console.log("Se manda a backend los comandos");
-
             //obtener una respuesta del backend respecto al comando enviado
             obtenerMensajes();
 
@@ -35,13 +35,16 @@ const Pantalla1 = () => {
 
             // Mostrar mensajes recibidos del backend
             if (response.data && response.data.length > 0) {
+                let mensajes = '';
                 response.data.forEach((mensaje) => {
+                    mensajes += `${mensaje.operacion}: ${mensaje.mensaje}\n`;
                     if (mensaje.operacion === "ERROR") {
                         mostrarNotificacion('danger', mensaje.mensaje);
                     } else {
                         mostrarNotificacion('success', mensaje.mensaje);
                     }
                 });
+                setNotificacionesRecibidas(mensajes);
             }
         } catch (error) {
             console.error('Error al obtener los mensajes:', error);
@@ -65,27 +68,43 @@ const Pantalla1 = () => {
                     {notificacion.mensaje}
                 </div>
             )}
+            <br></br>
             <div className="input-container">
-                <p className="bash-text">
-                    <span className="user">user</span><span className="vm">@mia-go-file</span>:
+                <p className="bash-text" style={{ fontSize: '1.5em' }}>
+                    <span className="user">u s e r</span><span className="vm">@mia-go-files</span>:
                     <span className="char">~</span>$
                 </p>
-                <textarea
+                <textarea 
                     className="input textarea"
                     placeholder="Ingresar comando..."
                     value={comando}
                     onChange={(e) => setComando(e.target.value)}
+                    style={{ height: '200px', resize: 'vertical', fontSize: '1.5em' }} // Ajuste del tamaño y permitir redimensionamiento vertical
                 ></textarea>
             </div>
             <br></br>
             <button
                 type="button"
                 className="button2"
-                style={{ borderRadius: '20px' }}
+                style={{ borderRadius: '20px', fontSize: '1.5em' }}
                 onClick={handleSubmit}
             >
                 Enviar
             </button>
+            <br></br>
+            <br></br>
+            <div className="input-container2">
+                <p className="bash-text" style={{ fontSize: '1.5em' }}>
+                    <span className="user">console</span><span className="vm">@mia-go-files</span>:
+                    <span className="char">~</span>$
+                </p>
+                <textarea
+                    className="input textarea"
+                    value={notificacionesRecibidas}
+                    onChange={(e) => setComando(e.target.value)}
+                    style={{ height: '200px', resize: 'vertical', fontSize: '1em' }} // Ajuste del tamaño y permitir redimensionamiento vertical
+                ></textarea>
+            </div>
         </div>
     )
 }

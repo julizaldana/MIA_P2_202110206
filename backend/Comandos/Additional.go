@@ -35,6 +35,14 @@ func MandarMensaje(op string, mensaje string, w http.ResponseWriter) {
 	json.NewEncoder(w).Encode(mensajes)
 }
 
+func MandarError(op string, mensaje string, w http.ResponseWriter) {
+	// Construye el mensaje de error
+	mensajeError := ("\tERROR " + op + "\n\tTIPO: " + mensaje)
+
+	// Envía el mensaje de error al frontend
+	MandarMensaje("ERROR", mensajeError, w)
+}
+
 func ObtenerMensajes(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(mensajes)

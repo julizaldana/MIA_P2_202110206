@@ -26,6 +26,7 @@ func ValidarDatosMKDISK(tokens []string, w http.ResponseWriter) {
 				fit = tk[1]
 			} else {
 				Error("MKDISK", "parametro f repetido en el comando: "+tk[0])
+				MandarError("MKDISK", "parametro f repetido en el comando: "+tk[0], w)
 				return
 			}
 		} else if Comparar(tk[0], "size") {
@@ -33,6 +34,8 @@ func ValidarDatosMKDISK(tokens []string, w http.ResponseWriter) {
 				size = tk[1]
 			} else {
 				Error("MKDISK", "parametro SIZE repetido en el comando: "+tk[0])
+				MandarError("MKDISK", "parametro SIZE repetido en el comando: "+tk[0], w)
+
 				return
 			}
 		} else if Comparar(tk[0], "unit") {
@@ -40,10 +43,12 @@ func ValidarDatosMKDISK(tokens []string, w http.ResponseWriter) {
 				unit = tk[1]
 			} else {
 				Error("MKDISK", "parametro U repetido en el comando: "+tk[0])
+				MandarError("MKDISK", "parametro U repetido en el comando: "+tk[0], w)
 				return
 			}
 		} else {
 			Error("MKDISK", "no se esperaba el parametro "+tk[0])
+			MandarError("MKDISK", "no se esperaba el parametro "+tk[0], w)
 			error_ = true
 			return
 		}
@@ -59,12 +64,15 @@ func ValidarDatosMKDISK(tokens []string, w http.ResponseWriter) {
 	}
 	if size == "" {
 		Error("MKDISK", "se requiere parametro Size para este comando")
+		MandarError("MKDISK", "se requiere parametro Size para este comando", w)
 		return
 	} else if !Comparar(fit, "BF") && !Comparar(fit, "FF") && !Comparar(fit, "WF") {
 		Error("MKDISK", "valores en parametro fit no esperados")
+		MandarError("MKDISK", "valores en parametro fit no esperados", w)
 		return
 	} else if !Comparar(unit, "k") && !Comparar(unit, "m") {
 		Error("MKDISK", "valores en parametro unit no esperados")
+		MandarError("MKDISK", "valores en parametro unit no esperados", w)
 		return
 	} else {
 		makeFile(size, fit, unit, w)
@@ -78,10 +86,12 @@ func makeFile(s string, f string, u string, w http.ResponseWriter) {
 	size, err := strconv.Atoi(s)
 	if err != nil {
 		Error("MKDISK", "Size debe ser un número entero")
+		MandarError("MKDISK", "Size debe ser un número entero", w)
 		return
 	}
 	if size <= 0 {
 		Error("MKDISK", "Size debe ser mayor a 0")
+		MandarError("MKDISK", "Size debe ser mayor a 0", w)
 		return
 	}
 	if Comparar(u, "M") {
@@ -133,6 +143,7 @@ func makeFile(s string, f string, u string, w http.ResponseWriter) {
 	defer file.Close()
 	if err != nil {
 		Error("MKDISK", "No se pudo crear el disco.")
+		MandarError("MKDISK", "No se pudo crear el disco.", w)
 		return
 	}
 	var vacio int8 = 0
@@ -161,9 +172,10 @@ func makeFile(s string, f string, u string, w http.ResponseWriter) {
 	MandarMensaje("MKDISK", "¡Disco \""+nombreDisco+"\" creado correctamente!", w)
 }
 
-func RMDISK(tokens []string) {
+func RMDISK(tokens []string, w http.ResponseWriter) {
 	if len(tokens) > 1 {
 		Error("RMDISK", "Solo se acepta el parámetro Driveletter.")
+		MandarError("RMDISK", "Solo se acepta el parámetro Driveletter.", w)
 		return
 	}
 	driveLetter := ""
@@ -176,10 +188,12 @@ func RMDISK(tokens []string) {
 				driveLetter = tk[1]
 			} else {
 				Error("RMDISK", "Parametro Driveletter repetido en el comando: "+tk[0])
+				MandarError("RMDISK", "Parametro Driveletter repetido en el comando: "+tk[0], w)
 				return
 			}
 		} else {
 			Error("RMDISK", "no se esperaba el parametro "+tk[0])
+			MandarError("RMDISK", "no se esperaba el parametro "+tk[0], w)
 			error_ = true
 			return
 		}
@@ -189,6 +203,7 @@ func RMDISK(tokens []string) {
 	}
 	if driveLetter == "" {
 		Error("RMDISK", "se requiere parametro Driveletter para este comando")
+		MandarError("RMDISK", "se requiere parametro Driveletter para este comando", w)
 		return
 	} else {
 		// Construir la ruta del archivo basado en la letra del driveLetter
@@ -198,23 +213,27 @@ func RMDISK(tokens []string) {
 
 		if !ArchivoExiste(path) {
 			Error("RMDISK", "No se encontró el disco en la ruta indicada.")
+			MandarError("RMDISK", "No se encontró el disco en la ruta indicada.", w)
 			return
 		}
 		if !strings.HasSuffix(path, "dsk") {
 			Error("RMDISK", "Extensión de archivo no válida.")
+			MandarError("RMDISK", "Extensión de archivo no válida.", w)
 			return
 		}
-		if Confirmar("¿Desea eliminar el disco: " + path + " ?") {
-			err := os.Remove(path)
-			if err != nil {
-				Error("RMDISK", "Error al intentar eliminar el archivo. :c")
-				return
-			}
-			Mensaje("RMDISK", "Disco ubicado en "+path+", ha sido eliminado exitosamente.")
+		err := os.Remove(path)
+		if err != nil {
+			Error("RMDISK", "Error al intentar eliminar el archivo.")
+			MandarError("RMDISK", "Error al intentar eliminar el archivo.", w)
 			return
-		} else {
+		}
+		Mensaje("RMDISK", "Disco ubicado en "+path+", ha sido eliminado exitosamente.")
+		MandarMensaje("RKDISK", "Disco ubicado en "+path+", ha sido eliminado exitosamente.", w)
+		return
+		/* if Confirmar("¿Desea eliminar el disco: " + path + " ?") {
+		} */ /* else {
 			Mensaje("RMDISK", "Eliminación del disco "+path+", cancelada exitosamente.")
 			return
-		}
+		} */
 	}
 }

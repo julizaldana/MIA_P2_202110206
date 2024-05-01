@@ -1,3 +1,0 @@
-mount -driveletter=A -name=Part30
-mkfs -type=full -id=A300 -fs=2fs
-rep -id=A300 -path=reporte8.jpg -name=disk

@@ -4,13 +4,14 @@ import (
 	"MIA_P2_202110206/Structs"
 	"bytes"
 	"encoding/binary"
+	"net/http"
 	"os"
 	"strconv"
 	"strings"
 	"unsafe"
 )
 
-func ValidarDatosGrupos(context []string, action string) {
+func ValidarDatosGrupos(context []string, action string, w http.ResponseWriter) {
 	name := ""
 	for i := 0; i < len(context); i++ {
 		token := context[i]
@@ -24,9 +25,9 @@ func ValidarDatosGrupos(context []string, action string) {
 		return
 	}
 	if Comparar(action, "MK") {
-		mkgrp(name)
+		mkgrp(name, w)
 	} else if Comparar(action, "RM") {
-		rmgrp(name)
+		rmgrp(name, w)
 	} else {
 		Error(action+"GRP", "No se reconoce este comando.")
 		return
@@ -34,9 +35,10 @@ func ValidarDatosGrupos(context []string, action string) {
 }
 
 // CREAR GRUPO
-func mkgrp(n string) {
+func mkgrp(n string, w http.ResponseWriter) {
 	if !Comparar(Logged.User, "root") {
 		Error("MKGRP", "Solo el usuario \"root\" puede acceder a estos comandos.")
+		MandarError("MKGRP", "Solo el usuario \"root\" puede acceder a estos comandos.", w)
 		return
 	}
 
@@ -44,6 +46,7 @@ func mkgrp(n string) {
 	partition := GetMount("MKGRP", Logged.Id, &path)
 	if string(partition.Part_status) == "0" {
 		Error("MKGRP", "No se encontró la partición montada con el id: "+Logged.Id)
+		MandarError("MKGRP", "No se encontró la partición montada con el id: "+Logged.Id, w)
 		return
 	}
 	//file, err := os.OpenFile(strings.ReplaceAll(path, "\"", ""), os.O_WRONLY, os.ModeAppend)
@@ -106,6 +109,7 @@ func mkgrp(n string) {
 			if in[2] == n {
 				if linea[0] != '0' {
 					Error("MKGRP", "EL nombre "+n+", ya está en uso.")
+					MandarError("MKGRP", "EL nombre "+n+", ya está en uso.", w)
 					return
 				}
 			}
@@ -133,6 +137,7 @@ func mkgrp(n string) {
 	}
 	if len(cadenasS) > 16 {
 		Error("MKGRP", "Se ha llenado la cantidad de archivos posibles y no se pueden generar más.")
+		MandarError("MKGRP", "Se ha llenado la cantidad de archivos posibles y no se pueden generar más.", w)
 		return
 	}
 	file.Close()
@@ -141,6 +146,7 @@ func mkgrp(n string) {
 	//file, err := os.Open(strings.ReplaceAll(path, "\"", ""))
 	if err != nil {
 		Error("MKGRP", "No se ha encontrado el disco.")
+		MandarError("MKGRP", "No se ha encontrado el disco.", w)
 		return
 	}
 
@@ -173,15 +179,16 @@ func mkgrp(n string) {
 	EscribirBytes(file, inodos.Bytes())
 
 	Mensaje("MKGRP", "Grupo "+n+", creado correctamente!")
-
+	MandarMensaje("MKGRP", "Grupo "+n+", creado correctamente!", w)
 	file.Close()
 }
 
 //ELIMINAR GRUPO
 
-func rmgrp(n string) {
+func rmgrp(n string, w http.ResponseWriter) {
 	if !Comparar(Logged.User, "root") {
 		Error("RMGRP", "Solo el usuario \"root\" puede acceder a estos comandos.")
+		MandarError("RMGRP", "Solo el usuario \"root\" puede acceder a estos comandos.", w)
 		return
 	}
 
@@ -189,6 +196,7 @@ func rmgrp(n string) {
 	partition := GetMount("RMGRP", Logged.Id, &path)
 	if string(partition.Part_status) == "0" {
 		Error("RMGRP", "No se encontró la partición montada con el id: "+Logged.Id)
+		MandarError("RMGRP", "No se encontró la partición montada con el id: "+Logged.Id, w)
 		return
 	}
 	//file, err := os.OpenFile(strings.ReplaceAll(path, "\"", ""), os.O_WRONLY, os.ModeAppend)
@@ -259,6 +267,7 @@ func rmgrp(n string) {
 	}
 	if !existe {
 		Error("RMGRP", "No se encontró el grupo \""+n+"\".")
+		MandarError("RMGRP", "No se encontró el grupo \""+n+"\".", w)
 		return
 	}
 	txt = aux
@@ -283,6 +292,7 @@ func rmgrp(n string) {
 	}
 	if len(cadenasS) > 16 {
 		Error("RMGRP", "Se ha llenado la cantidad de archivos posibles y no se pueden generar más.")
+		MandarError("RMGRP", "Se ha llenado la cantidad de archivos posibles y no se pueden generar más.", w)
 		return
 	}
 	file.Close()
@@ -291,6 +301,7 @@ func rmgrp(n string) {
 	//file, err := os.Open(strings.ReplaceAll(path, "\"", ""))
 	if err != nil {
 		Error("RMGRP", "No se ha encontrado el disco.")
+		MandarError("RMGRP", "No se ha encontrado el disco.", w)
 		return
 	}
 	for i := 0; i < len(cadenasS); i++ {
@@ -322,6 +333,7 @@ func rmgrp(n string) {
 	EscribirBytes(file, inodos.Bytes())
 
 	Mensaje("RMGRP", "Grupo "+n+", eliminado correctamente!")
+	MandarMensaje("RMGRP", "Grupo "+n+", eliminado correctamente!", w)
 
 	file.Close()
 }

@@ -1,0 +1,181 @@
+digraph G {
+  node0 [shape=none label=<
+  <TABLE style="rounded" bgcolor="#d5f2e9">
+  <TR>
+  <TD COLSPAN = '2' bgcolor="#34e5b0">REPORTE MBR</TD>
+  </TR>
+  <TR>
+ <TD bgcolor=" #cff5e5 ">mbr_tamano</TD>
+  <TD bgcolor=" #cff5e5 ">20971520</TD>
+  </TR><TR>
+  <TD bgcolor=" #cff5e5 ">mbr_fecha_creacion</TD>
+  <TD bgcolor=" #cff5e5 ">2024-05-01 12:52</TD>
+  </TR>
+  <TR>
+  <TD bgcolor=" #cff5e5 ">mbr_disk_signature</TD>
+  <TD bgcolor=" #cff5e5 ">439494531</TD>
+  </TR><TR>
+<TD COLSPAN = '2' bgcolor="#34e5dd">Particion</TD>
+</TR>
+<TR>
+<TD bgcolor="#b0ebe8">part_status</TD>
+<TD bgcolor="#b0ebe8">1</TD>
+</TR>
+<TR>
+<TD bgcolor="#b0ebe8">part_type</TD>
+<TD bgcolor="#b0ebe8">E</TD>
+</TR>
+<TR>
+<TD bgcolor="#b0ebe8">part_fit</TD>
+<TD bgcolor="#b0ebe8">B</TD>
+</TR>
+<TR>
+<TD bgcolor="#b0ebe8">part_start</TD>
+<TD bgcolor="#b0ebe8">264</TD>
+</TR>
+<TR>
+<TD bgcolor="#b0ebe8">part_size</TD>
+<TD bgcolor="#b0ebe8">5242880</TD>
+</TR>
+<TR>
+<TD bgcolor="#b0ebe8">part_name</TD>
+<TD bgcolor="#b0ebe8">Part29</TD>
+</TR>
+<TR>
+<TD COLSPAN = '2' bgcolor="#34e5dd">Particion</TD>
+</TR>
+<TR>
+<TD bgcolor="#b0ebe8">part_status</TD>
+<TD bgcolor="#b0ebe8">1</TD>
+</TR>
+<TR>
+<TD bgcolor="#b0ebe8">part_type</TD>
+<TD bgcolor="#b0ebe8">P</TD>
+</TR>
+<TR>
+<TD bgcolor="#b0ebe8">part_fit</TD>
+<TD bgcolor="#b0ebe8">B</TD>
+</TR>
+<TR>
+<TD bgcolor="#b0ebe8">part_start</TD>
+<TD bgcolor="#b0ebe8">5243144</TD>
+</TR>
+<TR>
+<TD bgcolor="#b0ebe8">part_size</TD>
+<TD bgcolor="#b0ebe8">5242880</TD>
+</TR>
+<TR>
+<TD bgcolor="#b0ebe8">part_name</TD>
+<TD bgcolor="#b0ebe8">Part31</TD>
+</TR>
+<TR>
+<TD COLSPAN = '2' bgcolor="#63bdcf">Particion Logica (EBR)</TD>
+</TR>
+<TR>
+<TD bgcolor="#a9dee9">part_status</TD>
+<TD bgcolor="#a9dee9">1</TD>
+</TR>
+<TR>
+<TD bgcolor="#a9dee9">part_fit</TD>
+<TD bgcolor="#a9dee9">B</TD>
+</TR>
+<TR>
+<TD bgcolor="#a9dee9">part_start</TD>
+<TD bgcolor="#a9dee9">264</TD>
+</TR>
+<TR>
+<TD bgcolor="#a9dee9">part_size</TD>
+<TD bgcolor="#a9dee9">1048576</TD>
+</TR>
+<TR>
+<TD bgcolor="#a9dee9">part_next</TD>
+<TD bgcolor="#a9dee9">1048888</TD>
+</TR>
+<TR>
+<TD bgcolor="#a9dee9">part_name</TD>
+<TD bgcolor="#a9dee9">Part30</TD>
+</TR>
+<TR>
+<TD COLSPAN = '2' bgcolor="#63bdcf">Particion Logica (EBR)</TD>
+</TR>
+<TR>
+<TD bgcolor="#a9dee9">part_status</TD>
+<TD bgcolor="#a9dee9">1</TD>
+</TR>
+<TR>
+<TD bgcolor="#a9dee9">part_fit</TD>
+<TD bgcolor="#a9dee9">B</TD>
+</TR>
+<TR>
+<TD bgcolor="#a9dee9">part_start</TD>
+<TD bgcolor="#a9dee9">1048888</TD>
+</TR>
+<TR>
+<TD bgcolor="#a9dee9">part_size</TD>
+<TD bgcolor="#a9dee9">1048576</TD>
+</TR>
+<TR>
+<TD bgcolor="#a9dee9">part_next</TD>
+<TD bgcolor="#a9dee9">2097512</TD>
+</TR>
+<TR>
+<TD bgcolor="#a9dee9">part_name</TD>
+<TD bgcolor="#a9dee9">Part32</TD>
+</TR>
+<TR>
+<TD COLSPAN = '2' bgcolor="#63bdcf">Particion Logica (EBR)</TD>
+</TR>
+<TR>
+<TD bgcolor="#a9dee9">part_status</TD>
+<TD bgcolor="#a9dee9">1</TD>
+</TR>
+<TR>
+<TD bgcolor="#a9dee9">part_fit</TD>
+<TD bgcolor="#a9dee9">B</TD>
+</TR>
+<TR>
+<TD bgcolor="#a9dee9">part_start</TD>
+<TD bgcolor="#a9dee9">2097512</TD>
+</TR>
+<TR>
+<TD bgcolor="#a9dee9">part_size</TD>
+<TD bgcolor="#a9dee9">1048576</TD>
+</TR>
+<TR>
+<TD bgcolor="#a9dee9">part_next</TD>
+<TD bgcolor="#a9dee9">3146136</TD>
+</TR>
+<TR>
+<TD bgcolor="#a9dee9">part_name</TD>
+<TD bgcolor="#a9dee9">Part33</TD>
+</TR>
+<TR>
+<TD COLSPAN = '2' bgcolor="#63bdcf">Particion Logica (EBR)</TD>
+</TR>
+<TR>
+<TD bgcolor="#a9dee9">part_status</TD>
+<TD bgcolor="#a9dee9">1</TD>
+</TR>
+<TR>
+<TD bgcolor="#a9dee9">part_fit</TD>
+<TD bgcolor="#a9dee9">B</TD>
+</TR>
+<TR>
+<TD bgcolor="#a9dee9">part_start</TD>
+<TD bgcolor="#a9dee9">3146136</TD>
+</TR>
+<TR>
+<TD bgcolor="#a9dee9">part_size</TD>
+<TD bgcolor="#a9dee9">1048576</TD>
+</TR>
+<TR>
+<TD bgcolor="#a9dee9">part_next</TD>
+<TD bgcolor="#a9dee9">4194760</TD>
+</TR>
+<TR>
+<TD bgcolor="#a9dee9">part_name</TD>
+<TD bgcolor="#a9dee9">Part34</TD>
+</TR>
+</TABLE>>];
+
+}

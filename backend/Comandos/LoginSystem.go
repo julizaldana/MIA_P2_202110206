@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
+	"net/http"
 	"os"
 	"strconv"
 	"strings"
@@ -21,7 +22,7 @@ type UsuarioActivo struct {
 
 var Logged UsuarioActivo
 
-func ValidarDatosLOGIN(context []string) bool {
+func ValidarDatosLOGIN(context []string, w http.ResponseWriter) bool {
 	user := ""
 	pass := ""
 	id := ""
@@ -39,22 +40,25 @@ func ValidarDatosLOGIN(context []string) bool {
 	}
 	if id == "" || user == "" || pass == "" {
 		Error("LOGIN", "Se necesitan los parámetros id, user y pass para el comando LOGIN")
+		MandarError("LOGIN", "Se necesitan los parámetros id, user y pass para el comando LOGIN", w)
 		return false
 	}
-	return sesionActiva(user, pass, id)
+	return sesionActiva(user, pass, id, w)
 }
 
-func sesionActiva(u string, p string, id string) bool {
+func sesionActiva(u string, p string, id string, w http.ResponseWriter) bool {
 	var path string
 	partition := GetMount("LOGIN", id, &path)
 	if string(partition.Part_status) == "0" {
 		Error("LOGIN", "No se encontró la partición montada con el id: "+id)
+		MandarError("LOGIN", "No se encontró la partición montada con el id: "+id, w)
 		return false
 	}
 	//file, err := os.OpenFile(strings.ReplaceAll(path, "\"", ""), os.O_WRONLY, os.ModeAppend)
 	file, err := os.Open(strings.ReplaceAll(path, "\"", ""))
 	if err != nil {
 		Error("LOGIN", "No se ha encontrado el disco.")
+		MandarError("LOGIN", "No se ha encontrado el disco.", w)
 		return false
 	}
 
@@ -122,10 +126,12 @@ func sesionActiva(u string, p string, id string) bool {
 				}
 				if !existe {
 					Error("Login", "No se encontró el grupo \""+in[2]+"\".")
+					MandarError("LOGIN", "No se encontró el grupo \""+in[2]+"\".", w)
 					return false
 				}
 
 				Mensaje("LOGIN", "logueado correctamente")
+				MandarMensaje("LOGIN", "logueado correctamente ", w)
 				fmt.Println(Format(GREEN, "\t\t-*-*-*¡BIENVENIDO  "+u+"!-*-*-*-*"))
 				Logged.Id = id
 				Logged.User = u
@@ -137,12 +143,14 @@ func sesionActiva(u string, p string, id string) bool {
 		}
 	}
 	Error("LOGIN", "No se encontró el usuario "+u)
+	MandarError("LOGIN", "No se encontró el usuario "+u, w)
 	return false
 }
 
-func CerrarSesion() bool {
+func CerrarSesion(w http.ResponseWriter) bool {
 	fmt.Println(Format(PURPLE, "\t\t¡Adiós "+Logged.User+", hasta pronto!"))
 	Mensaje("LOGOUT", "Se ha cerrado la sesión correctamente")
+	MandarMensaje("LOGOUT", "Se ha cerrado la sesión correctamente", w)
 	Logged = UsuarioActivo{}
 	return false
 }

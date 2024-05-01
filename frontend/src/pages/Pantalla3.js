@@ -4,12 +4,19 @@ const Pantalla3 = () => {
     const [reportes, setReportes] = useState([]);
     const [imagenSeleccionada, setImagenSeleccionada] = useState('');
     const [modalAbierto, setModalAbierto] = useState(false);
+    const [cargando, setCargando] = useState(true);
 
     useEffect(() => {
         fetch('http://localhost:8080/obtenerreportes')
             .then(response => response.json())
-            .then(data => setReportes(data))
-            .catch(error => console.error('Error al obtener los reportes:', error));
+            .then(data => {
+                setReportes(data || []);
+                setCargando(false); // Cuando se recibe la respuesta, indicar que ya no se está cargando
+            })
+            .catch(error => {
+                console.error('Error al obtener los reportes:', error);
+                setCargando(false); // En caso de error, también se indica que ya no se está cargando
+            });
     }, []);
 
     const abrirModal = (url) => {
@@ -20,6 +27,15 @@ const Pantalla3 = () => {
     const cerrarModal = () => {
         setModalAbierto(false);
     };
+
+    // Mostrar un mensaje si no hay reportes o la lista está vacía
+    if (cargando) {
+        return <div>Cargando...</div>;
+    }
+
+    if (!reportes || reportes.length === 0) {
+        return <div><h1>No hay reportes para mostrar</h1></div>;
+    }
 
     return (
         <div>
@@ -40,7 +56,7 @@ const Pantalla3 = () => {
             {modalAbierto && (
                 <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0, 0, 0, 0.7)', zIndex: 999 }}>
                     <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
-                        <button type="button" class="btn btn-danger" onClick={cerrarModal}>Cerrar</button>
+                        <button type="button" className="btn btn-danger" onClick={cerrarModal}>Cerrar</button>
                         <img src={imagenSeleccionada} alt="Imagen seleccionada" style={{ maxWidth: '90%', maxHeight: '90%' }} />
                     </div>
                 </div>

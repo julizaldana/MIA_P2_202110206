@@ -27,8 +27,24 @@ const Pantalla2Login = () => {
         }
     };
 
+    const mandaridparticion = async (idParticion) => {
+        const data = {
+            idParticion: idParticion
+        };
+    
+        try {
+            const response = await axios.post('http://localhost:8080/mandaridparticion', data);
+            console.log(response.data);
+            console.log("Se manda a backend el disco");
+    
+        } catch (error) {
+            console.error('Error al enviar los datos:', error);
+        }
+    };
+    
+
     return (
-        <div>
+        <div style={{ fontSize: '1.5em' }}>
             <h1> LOGIN </h1>
             <h2>Id Particion Montada: {idParticion}</h2>
             <button
@@ -40,17 +56,17 @@ const Pantalla2Login = () => {
             </button>
             <div className="form-box">
                 <form className="form">
-                    <span className="title">Inicia Sesión!</span>
-                    <span className="subtitle">Inicia sesión con tu cuenta de </span>
-                    <span className="subtitle"> MIA Go File</span>
+                    <span className="title" style={{ fontSize: '1.5em' }}>Inicia Sesión!</span>
+                    <span className="subtitle" style={{ fontSize: '1.5em' }}>Inicia sesión con tu cuenta de </span>
+                    <span className="subtitle" style={{ fontSize: '1.5em' }}> MIA Go File</span>
                     <div className="form-container">
                         <input type="text" className="input" placeholder="usuario" value={usuario} onChange={(e) => setUsuario(e.target.value)} />
                         <input type="password" className="input" placeholder="contraseña" value={contraseña} onChange={(e) => setContraseña(e.target.value)} />
                         <input type="text" className="input" placeholder="id particion" value={idParticionInput} onChange={(e) => setIdParticionInput(e.target.value)} />
                     </div>
-                    <Link to={`/logueado/${usuario}`}><button type="button" onClick={handleSubmit}>LOGIN</button></Link>
+                    <Link to={`/logueado/${idParticionInput}/${usuario}`}><button type="button" style={{ fontSize: '1.2em' }} onClick={() => { handleSubmit(); mandaridparticion(idParticionInput); }}>LOGIN</button></Link>
                 </form>
-                <div className="form-section">
+                <div className="form-section" style={{ fontSize: '1em' }}>
                     <p>Deseas crear otro usuario? <Link to="/">Comandos</Link> </p>
                 </div>
             </div>
